@@ -9,7 +9,7 @@ type ParametersPrometheus struct {
 	// BindAddress defines the bind address on which the Prometheus exporter listens on.
 	BindAddress string `default:"localhost:9312" usage:"the bind address on which the Prometheus HTTP server listens on"`
 	// SpammerMetrics defines whether to include the spammer metrics.
-	SpammerMetrics bool `default:"false" usage:"whether to include the spammer metrics"`
+	SpammerMetrics bool `default:"true" usage:"whether to include the spammer metrics"`
 	// GoMetrics defines whether to include go metrics.
 	GoMetrics bool `default:"false" usage:"whether to include go metrics"`
 	// ProcessMetrics defines whether to include process metrics.
