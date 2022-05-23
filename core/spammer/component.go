@@ -30,6 +30,7 @@ func init() {
 			Name:      "Spammer",
 			DepsFunc:  func(cDeps dependencies) { deps = cDeps },
 			Params:    params,
+			Provide:   provide,
 			Configure: configure,
 			Run:       run,
 		},
@@ -54,6 +55,12 @@ func provide(c *dig.Container) error {
 
 	if err := c.Provide(func() *spammer.CPUUsageUpdater {
 		return spammer.NewCPUUsageUpdater(cpuUsageSampleTime, cpuUsageSleepTime)
+	}); err != nil {
+		return err
+	}
+
+	if err := c.Provide(func() *spammer.SpammerMetrics {
+		return &spammer.SpammerMetrics{}
 	}); err != nil {
 		return err
 	}
