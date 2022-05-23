@@ -2,7 +2,7 @@
   "app": {
     "checkForUpdates": true,
     "disablePlugins": [],
-    "enablePlugins": [],
+    "enablePlugins": ["Prometheus"],
     "stopGracePeriod": "5m"
   },
   "inx": {
@@ -25,6 +25,7 @@
   },
   "prometheus": {
     "bindAddress": "localhost:9312",
+    "spammerMetrics": true,
     "goMetrics": false,
     "processMetrics": false,
     "promhttpMetrics": false
