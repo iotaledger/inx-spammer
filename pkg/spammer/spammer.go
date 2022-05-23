@@ -42,7 +42,7 @@ type (
 type Spammer struct {
 	// the logger used to log events.
 	*logger.WrappedLogger
-	*syncutils.RWMutex
+	syncutils.RWMutex
 
 	protoParas            *iotago.ProtocolParameters
 	bpsRateLimit          float64
