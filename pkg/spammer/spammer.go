@@ -755,6 +755,19 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 	// set the atomic ledger milestone index to stop all ongoing spammers with the old ledger state
 	s.ledgerMilestoneIndex.Store(msIndex)
 
+	s.Lock()
+	defer s.Unlock()
+
+	if !s.isRunning {
+		// spammer is not running
+		return nil
+	}
+
+	// if we didn't provide accounts, we don't have to check for conflicts.
+	if s.accountSender == nil || s.accountReceiver == nil {
+		return nil
+	}
+
 	// create maps for faster lookup.
 	// outputs that are created and consumed in the same milestone exist in both maps.
 	newSpentsMap := make(map[iotago.OutputID]struct{})
@@ -765,21 +778,6 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 	newOutputsMap := make(map[iotago.OutputID]struct{})
 	for _, output := range createdOutputs {
 		newOutputsMap[output] = struct{}{}
-	}
-
-	s.Lock()
-	defer s.Unlock()
-
-	if !s.isRunning {
-		// spammer is not running
-		return nil
-	}
-
-	if s.accountSender != nil {
-		s.accountSender.ClearSpentOutputs(newSpentsMap)
-	}
-	if s.accountReceiver != nil {
-		s.accountReceiver.ClearSpentOutputs(newSpentsMap)
 	}
 
 	// check if pending transactions were affected by the ledger update.
@@ -802,10 +800,8 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 		}
 	}
 
-	// if we didn't provide accounts, we don't have to check for conflicts.
-	if s.accountSender == nil || s.accountReceiver == nil {
-		return nil
-	}
+	s.accountSender.ClearSpentOutputs(newSpentsMap)
+	s.accountReceiver.ClearSpentOutputs(newSpentsMap)
 
 	conflicting := false
 	// it may happen that transactions that were created by the spammer are conflicting (e.g. block below max depth).
