@@ -3,7 +3,7 @@ package spammer
 import (
 	"time"
 
-	"github.com/iotaledger/hive.go/app"
+	"github.com/iotaledger/hive.go/core/app"
 )
 
 // ParametersSpammer contains the definition of the parameters used by the Spammer.

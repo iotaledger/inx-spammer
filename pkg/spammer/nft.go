@@ -15,13 +15,13 @@ func collectNFTOutputsQuery(addressBech32 string) nodeclient.IndexerQuery {
 	return &nodeclient.NFTsQuery{
 		AddressBech32: addressBech32,
 		IndexerExpirationParas: nodeclient.IndexerExpirationParas{
-			HasExpirationCondition: &falseCondition,
+			HasExpiration: &falseCondition,
 		},
 		IndexerTimelockParas: nodeclient.IndexerTimelockParas{
-			HasTimelockCondition: &falseCondition,
+			HasTimelock: &falseCondition,
 		},
 		IndexerStorageDepositParas: nodeclient.IndexerStorageDepositParas{
-			RequiresStorageDepositReturn: &falseCondition,
+			HasStorageDepositReturn: &falseCondition,
 		},
 	}
 }
