@@ -3,6 +3,7 @@ module github.com/iotaledger/inx-spammer
 go 1.19
 
 require (
+	github.com/iotaledger/hive.go/core v1.0.0-beta.2
 	github.com/iotaledger/hive.go/serializer/v2 v2.0.0-beta.1
 	github.com/iotaledger/inx-app v1.0.0-beta.9
 	github.com/iotaledger/inx/go v1.0.0-beta.5
@@ -90,4 +91,3 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-require github.com/iotaledger/hive.go/core v1.0.0-beta.2
