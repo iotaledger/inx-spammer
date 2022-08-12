@@ -6,6 +6,9 @@
   "inx": {
     "address": "localhost:9029"
   },
+  "pow": {
+    "refreshTipsInterval": "5s"
+  },
   "spammer": {
     "bindAddress": "localhost:9092",
     "message": "We are all made of stardust.",
@@ -19,9 +22,6 @@
     "nonLazyTipsThreshold": 0,
     "semiLazyTipsThreshold": 30,
     "debugRequestLoggerEnabled": false
-  },
-  "pow": {
-    "refreshTipsInterval": "5s"
   },
   "profiling": {
     "enabled": false,

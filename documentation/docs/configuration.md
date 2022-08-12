@@ -62,7 +62,23 @@ Example:
   }
 ```
 
-## <a id="spammer"></a> 3. Spammer
+## <a id="pow"></a> 3. Pow
+
+| Name                | Description                             | Type   | Default value |
+| ------------------- | --------------------------------------- | ------ | ------------- |
+| refreshTipsInterval | Interval for refreshing tips during PoW | string | "5s"          |
+
+Example:
+
+```json
+  {
+    "pow": {
+      "refreshTipsInterval": "5s"
+    }
+  }
+```
+
+## <a id="spammer"></a> 4. Spammer
 
 | Name                      | Description                                                                                                 | Type    | Default value                  |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- | ------------------------------ |
@@ -96,22 +112,6 @@ Example:
       "nonLazyTipsThreshold": 0,
       "semiLazyTipsThreshold": 30,
       "debugRequestLoggerEnabled": false
-    }
-  }
-```
-
-## <a id="pow"></a> 4. Pow
-
-| Name                | Description                             | Type   | Default value |
-| ------------------- | --------------------------------------- | ------ | ------------- |
-| refreshTipsInterval | Interval for refreshing tips during PoW | string | "5s"          |
-
-Example:
-
-```json
-  {
-    "pow": {
-      "refreshTipsInterval": "5s"
     }
   }
 ```
