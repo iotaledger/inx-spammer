@@ -28,6 +28,25 @@ The spammer is configured by default to connect to your HORNET instance.
 
 You can find all the configuration options in the [configuration section](configuration.md).
 
+### Value Spam
+
+The spammer can also be used to create value spam in the network.
+
+For this to work, you need to fund an address upfront and pass the environment variable `SPAMMER_MNEMONIC` with the corresponding 24 word Mnemonic for the private key of the address.
+
+In case you use the recommended Docker setup, you can create a new Mnemonic and address using the following command:
+```
+docker compose run hornet tool ed25519-key --hrp BECH32HRP
+```
+`BECH32HRP` must be replaced with the correct HRP for your network.
+
+The value spam can be enabled via Dashboard or by setting the parameter `valueSpamEnabled` to `true` in the configuration.
+
+:::warning
+You must not use the spammer in a network with real funds. You may loose access to your funds if you do so.
+:::
+
+
 ## Dashboard
 
 If you are using the [INX-Dashboard](https://github.com/iotaledger/inx-dashboard) on your node, you can control the spammer directly from your browser.
