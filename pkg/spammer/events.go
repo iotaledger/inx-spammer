@@ -16,8 +16,8 @@ type AvgSpamMetrics struct {
 	AverageBlocksPerSecond float32 `json:"avgBlocks"`
 }
 
-// SpammerEvents are the events issued by the spammer.
-type SpammerEvents struct {
+// Events are the events issued by the spammer.
+type Events struct {
 	// Fired when a single spam block is issued.
 	SpamPerformed *events.Event
 	// Fired when average spam metrics were updated by the worker.

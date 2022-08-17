@@ -4,12 +4,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type SpammerServer struct {
+type Server struct {
 	Spammer *Spammer
 }
 
-func NewSpammerServer(spammer *Spammer, group *echo.Group) *SpammerServer {
-	s := &SpammerServer{
+func NewServer(spammer *Spammer, group *echo.Group) *Server {
+	s := &Server{
 		Spammer: spammer,
 	}
 	s.configureRoutes(group)

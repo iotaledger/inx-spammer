@@ -97,7 +97,7 @@ type (
 	// GetTipsPoolSizesFunc returns the current tip pool sizes of the node.
 	GetTipsPoolSizesFunc = func() (uint32, uint32)
 
-	// RequestTipsFunc returns tips choosen by the node.
+	// RequestTipsFunc returns tips chosen by the node.
 	RequestTipsFunc = func(ctx context.Context, count uint32, allowSemiLazy bool) (iotago.BlockIDs, error)
 
 	// SendBlockFunc is a function which sends a block to the network.
@@ -145,7 +145,7 @@ type Spammer struct {
 	isNodeHealthyFunc      IsNodeHealthyFunc
 	sendBlockFunc          SendBlockFunc
 	blockMetadataFunc      BlockMetadataFunc
-	spammerMetrics         *SpammerMetrics
+	spammerMetrics         *Metrics
 	cpuUsageUpdater        *CPUUsageUpdater
 	daemon                 hivedaemon.Daemon
 
@@ -172,7 +172,7 @@ type Spammer struct {
 	ledgerMilestoneIndex        atomic.Uint32
 	currentLedgerMilestoneIndex uint32
 
-	Events *SpammerEvents
+	Events *Events
 
 	// pendingTransactionsMap is a map of sent transactions that are pending.
 	pendingTransactionsMap map[iotago.BlockID]*pendingTransaction
@@ -198,7 +198,7 @@ func New(
 	isNodeHealthyFunc IsNodeHealthyFunc,
 	sendBlockFunc SendBlockFunc,
 	blockMetadataFunc BlockMetadataFunc,
-	spammerMetrics *SpammerMetrics,
+	spammerMetrics *Metrics,
 	cpuUsageUpdater *CPUUsageUpdater,
 	daemon hivedaemon.Daemon,
 	log *logger.Logger) (*Spammer, error) {
@@ -258,7 +258,7 @@ func New(
 		daemon:                 daemon,
 		indexer:                indexer,
 		// Events are the events of the spammer
-		Events: &SpammerEvents{
+		Events: &Events{
 			SpamPerformed:         events.NewEvent(SpamStatsCaller),
 			AvgSpamMetricsUpdated: events.NewEvent(AvgSpamMetricsCaller),
 		},
@@ -615,7 +615,7 @@ func (s *Spammer) startSpammerWorkers(valueSpamEnabled bool, bpsRateLimit float6
 	return nil
 }
 
-// ATTENTION: spammer lock should not be aquired when
+// ATTENTION: spammer lock should not be acquired when
 // calling this function because it might deadlock.
 func (s *Spammer) triggerStopSignalAndWait() {
 	// increase the process ID to stop all running workers

@@ -37,7 +37,7 @@ func init() {
 type dependencies struct {
 	dig.In
 	PrometheusEcho *echo.Echo `name:"prometheusEcho"`
-	SpammerMetrics *spammer.SpammerMetrics
+	SpammerMetrics *spammer.Metrics
 }
 
 var (

@@ -49,7 +49,7 @@ func NewHDWallet(protoParas *iotago.ProtocolParameters, mnemonic []string, passp
 
 func (hd *HDWallet) keyPair(acount uint64, isChange bool, addressIndex uint64) (ed25519.PrivateKey, ed25519.PublicKey, error) {
 	change := 0
-	if isChange == true {
+	if isChange {
 		change = 1
 	}
 

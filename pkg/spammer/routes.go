@@ -37,7 +37,7 @@ type startCommand struct {
 	SpammerWorkers   *int     `json:"spammerWorkers,omitempty"`
 }
 
-func (s *SpammerServer) configureRoutes(routeGroup *echo.Group) {
+func (s *Server) configureRoutes(routeGroup *echo.Group) {
 
 	routeGroup.GET(RouteSpammerStatus, func(c echo.Context) error {
 		return c.JSON(http.StatusOK, &spammerStatus{

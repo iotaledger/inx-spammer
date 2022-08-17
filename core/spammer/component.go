@@ -68,8 +68,8 @@ func provide(c *dig.Container) error {
 		return err
 	}
 
-	if err := c.Provide(func() *spammer.SpammerMetrics {
-		return &spammer.SpammerMetrics{}
+	if err := c.Provide(func() *spammer.Metrics {
+		return &spammer.Metrics{}
 	}); err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func provide(c *dig.Container) error {
 
 	type spammerDeps struct {
 		dig.In
-		SpammerMetrics  *spammer.SpammerMetrics
+		SpammerMetrics  *spammer.Metrics
 		NodeBridge      *nodebridge.NodeBridge
 		CPUUsageUpdater *spammer.CPUUsageUpdater
 		TipPoolListener *nodebridge.TipPoolListener
@@ -228,7 +228,7 @@ func run() error {
 
 		CoreComponent.LogInfo("Starting API server...")
 
-		_ = spammer.NewSpammerServer(deps.Spammer, e.Group(""))
+		_ = spammer.NewServer(deps.Spammer, e.Group(""))
 
 		go func() {
 			CoreComponent.LogInfof("You can now access the API using: http://%s", ParamsSpammer.BindAddress)

@@ -69,16 +69,16 @@ func (u *AliasUTXO) PendingBlockID() iotago.BlockID {
 	return u.pendingBlockID
 }
 
-func (a *AliasUTXO) FoundryOutputs() []*UTXO {
-	return a.foundryOutputs
+func (u *AliasUTXO) FoundryOutputs() []*UTXO {
+	return u.foundryOutputs
 }
 
-func (a *AliasUTXO) SetFoundryOutputs(foundryOutputs []*UTXO) {
-	a.foundryOutputs = foundryOutputs
+func (u *AliasUTXO) SetFoundryOutputs(foundryOutputs []*UTXO) {
+	u.foundryOutputs = foundryOutputs
 }
 
-func (a *AliasUTXO) AppendFoundryOutput(foundryOutput *UTXO) {
-	a.foundryOutputs = append(a.foundryOutputs, foundryOutput)
+func (u *AliasUTXO) AppendFoundryOutput(foundryOutput *UTXO) {
+	u.foundryOutputs = append(u.foundryOutputs, foundryOutput)
 }
 
 func consumeInputs[T UTXOInterface](inputs []T, onConsumeInput func(input T) (consume bool, abort bool)) ([]T, []T) {
