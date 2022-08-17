@@ -98,6 +98,8 @@ func (c *CPUUsageUpdater) WaitForLowerCPUUsage(ctx context.Context, cpuMaxUsage 
 		select {
 		case <-ctx.Done():
 			return common.ErrOperationAborted
+
+		//nolint:gosec // we do not care about weak random numbers here
 		case <-time.After(time.Duration(int(c.sleepTime) + rand.Intn(int(c.sleepTime)))):
 			// sleep a random time between sleepTime and 2*sleepTime
 		}

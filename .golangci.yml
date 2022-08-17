@@ -34,23 +34,23 @@ linters:
         - asciicheck
         - bidichk
         - bodyclose
-        #- containedctx
+        - containedctx
         - contextcheck
         - decorder
         - depguard
         - dogsled
-        #- dupl
+        - dupl
         - durationcheck
         - errchkjson
         - errname
-        #- errorlint
+        - errorlint
         - execinquery
-        #- exhaustive
+        - exhaustive
         #- exhaustruct
         - exportloopref
         - forcetypeassert
         - goconst
-        #- gocritic
+        - gocritic
         - godot
         #- godox
         #- goerr113
@@ -66,31 +66,31 @@ linters:
         - grouper
         - ifshort
         - importas
-        #- interfacer
-        #- makezero
+        - interfacer
+        - makezero
         #- maligned
         - misspell
-        #- nakedret
+        - nakedret
         - nilerr
         - nilnil
         - nlreturn
         - noctx
         #- nonamedreturns
-        #- nosnakecase
-        #- nosprintfhostport
+        - nosnakecase
+        - nosprintfhostport
         - prealloc
         - predeclared
         - promlinter
         - revive
         - rowserrcheck
-        #- scopelint
+        - scopelint
         - sqlclosecheck
         - structcheck
         - stylecheck
         - tagliatelle
         - tenv
-        #- testpackage
-        #- thelper
+        - testpackage
+        - thelper
         - tparallel
         - unconvert
         - unparam

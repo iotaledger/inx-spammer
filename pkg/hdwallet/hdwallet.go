@@ -32,7 +32,7 @@ func NewHDWallet(protoParas *iotago.ProtocolParameters, mnemonic []string, passp
 
 	seed, err := bip39.MnemonicToSeed(mnemonic, passpharse)
 	if err != nil {
-		return nil, fmt.Errorf("mnemonic to seed failed: %v", err)
+		return nil, fmt.Errorf("mnemonic to seed failed: %w", err)
 	}
 
 	if len(seed) != MnemonicSeedSize {
@@ -55,13 +55,13 @@ func (hd *HDWallet) keyPair(acount uint64, isChange bool, addressIndex uint64) (
 
 	path, err := bip32path.ParsePath(fmt.Sprintf(BIP32PathString, acount, change, addressIndex))
 	if err != nil {
-		return nil, nil, fmt.Errorf("bip32 parse path failed: %v", err)
+		return nil, nil, fmt.Errorf("bip32 parse path failed: %w", err)
 	}
 
 	curve := slip10.Ed25519()
 	key, err := slip10.DeriveKeyFromPath(hd.seed[:MnemonicSeedSize], curve, path)
 	if err != nil {
-		return nil, nil, fmt.Errorf("splip10 derive key failed: %v", err)
+		return nil, nil, fmt.Errorf("splip10 derive key failed: %w", err)
 	}
 
 	pubKey, privKey := slip10.Ed25519Key(key)

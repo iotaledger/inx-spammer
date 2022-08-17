@@ -980,6 +980,7 @@ func (s *Spammer) composeTaggedData(isSemiLazy bool, timeGTTA time.Duration, add
 
 func addBalanceToOutput(output iotago.Output, balance uint64) error {
 
+	//nolint:exhaustive // we do not need to check all output types
 	switch output.Type() {
 	case iotago.OutputBasic:
 		//nolint:forcetypeassert // we already checked the type
@@ -1008,6 +1009,7 @@ func setMinimumBalanceOfOutput(protocolParams *iotago.ProtocolParameters, output
 
 	minAmount := protocolParams.RentStructure.MinRent(output)
 
+	//nolint:exhaustive // we do not need to check all output types
 	switch output.Type() {
 	case iotago.OutputBasic:
 		//nolint:forcetypeassert // we already checked the type
@@ -1113,6 +1115,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 
 		var unlockAddress iotago.Address
 
+		//nolint:exhaustive // we do not need to check all output types
 		switch input.Output().Type() {
 		case iotago.OutputBasic:
 			//nolint:forcetypeassert // we already checked the type
@@ -1339,6 +1342,7 @@ func (s *Spammer) bookCreatedOutputs(createdOutputs []UTXOInterface, basicOutput
 
 	for _, output := range createdOutputs {
 
+		//nolint:exhaustive // we do not need to check all output types
 		switch output.Output().Type() {
 		case iotago.OutputBasic:
 			if basicOutputsAccount == nil {
