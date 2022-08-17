@@ -982,15 +982,19 @@ func addBalanceToOutput(output iotago.Output, balance uint64) error {
 
 	switch output.Type() {
 	case iotago.OutputBasic:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.BasicOutput)
 		o.Amount += balance
 	case iotago.OutputAlias:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.AliasOutput)
 		o.Amount += balance
 	case iotago.OutputFoundry:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.FoundryOutput)
 		o.Amount += balance
 	case iotago.OutputNFT:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.NFTOutput)
 		o.Amount += balance
 	default:
@@ -1006,21 +1010,25 @@ func setMinimumBalanceOfOutput(protocolParams *iotago.ProtocolParameters, output
 
 	switch output.Type() {
 	case iotago.OutputBasic:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.BasicOutput)
 		if o.Amount < minAmount {
 			o.Amount = minAmount
 		}
 	case iotago.OutputAlias:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.AliasOutput)
 		if o.Amount < minAmount {
 			o.Amount = minAmount
 		}
 	case iotago.OutputFoundry:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.FoundryOutput)
 		if o.Amount < minAmount {
 			o.Amount = minAmount
 		}
 	case iotago.OutputNFT:
+		//nolint:forcetypeassert // we already checked the type
 		o := output.(*iotago.NFTOutput)
 		if o.Amount < minAmount {
 			o.Amount = minAmount
@@ -1107,6 +1115,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 
 		switch input.Output().Type() {
 		case iotago.OutputBasic:
+			//nolint:forcetypeassert // we already checked the type
 			o := input.Output().(*iotago.BasicOutput)
 
 			addrUnlockCondition := o.UnlockConditionSet().Address()
@@ -1121,6 +1130,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 			unlockAddress = addrUnlockCondition.Address
 
 		case iotago.OutputAlias:
+			//nolint:forcetypeassert // we already checked the type
 			o := input.Output().(*iotago.AliasOutput)
 
 			addrUnlockCondition := o.UnlockConditionSet().StateControllerAddress()
@@ -1135,6 +1145,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 			unlockAddress = addrUnlockCondition.Address
 
 		case iotago.OutputFoundry:
+			//nolint:forcetypeassert // we already checked the type
 			o := input.Output().(*iotago.FoundryOutput)
 
 			addrUnlockCondition := o.UnlockConditionSet().ImmutableAlias()
@@ -1145,6 +1156,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 			unlockAddress = addrUnlockCondition.Address
 
 		case iotago.OutputNFT:
+			//nolint:forcetypeassert // we already checked the type
 			o := input.Output().(*iotago.NFTOutput)
 
 			addrUnlockCondition := o.UnlockConditionSet().Address()
@@ -1332,19 +1344,37 @@ func (s *Spammer) bookCreatedOutputs(createdOutputs []UTXOInterface, basicOutput
 			if basicOutputsAccount == nil {
 				return fmt.Errorf("basic output account is nil")
 			}
-			basicOutputsAccount.AppendBasicOutput(output.(*UTXO))
+
+			utxo, ok := output.(*UTXO)
+			if !ok {
+				panic(fmt.Sprintf("invalid type: expected *UTXO, got %T", output))
+			}
+
+			basicOutputsAccount.AppendBasicOutput(utxo)
 
 		case iotago.OutputAlias:
 			if aliasOutputsAccount == nil {
 				return fmt.Errorf("alias output account is nil")
 			}
-			aliasOutputsAccount.AppendAliasOutput(output.(*AliasUTXO))
+
+			aliasUTXO, ok := output.(*AliasUTXO)
+			if !ok {
+				panic(fmt.Sprintf("invalid type: expected *AliasUTXO, got %T", output))
+			}
+
+			aliasOutputsAccount.AppendAliasOutput(aliasUTXO)
 
 		case iotago.OutputFoundry:
 			if aliasOutputsAccount == nil {
 				return fmt.Errorf("alias output account is nil")
 			}
-			if err := aliasOutputsAccount.AppendFoundryOutput(output.(*UTXO)); err != nil {
+
+			utxo, ok := output.(*UTXO)
+			if !ok {
+				panic(fmt.Sprintf("invalid type: expected *UTXO, got %T", output))
+			}
+
+			if err := aliasOutputsAccount.AppendFoundryOutput(utxo); err != nil {
 				return err
 			}
 
@@ -1352,7 +1382,13 @@ func (s *Spammer) bookCreatedOutputs(createdOutputs []UTXOInterface, basicOutput
 			if nftOutputsAccount == nil {
 				return fmt.Errorf("nft output account is nil")
 			}
-			nftOutputsAccount.AppendNFTOutput(output.(*UTXO))
+
+			utxo, ok := output.(*UTXO)
+			if !ok {
+				panic(fmt.Sprintf("invalid type: expected *UTXO, got %T", output))
+			}
+
+			nftOutputsAccount.AppendNFTOutput(utxo)
 
 		default:
 			return fmt.Errorf("%w: type %d", iotago.ErrUnknownOutputType, output.Output().Type())

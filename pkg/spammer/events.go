@@ -26,10 +26,12 @@ type Events struct {
 
 // SpamStatsCaller is used to signal new SpamStats.
 func SpamStatsCaller(handler interface{}, params ...interface{}) {
+	//nolint:forcetypeassert // we will replace that with generic events anyway
 	handler.(func(*SpamStats))(params[0].(*SpamStats))
 }
 
 // AvgSpamMetricsCaller is used to signal new AvgSpamMetrics.
 func AvgSpamMetricsCaller(handler interface{}, params ...interface{}) {
+	//nolint:forcetypeassert // we will replace that with generic events anyway
 	handler.(func(*AvgSpamMetrics))(params[0].(*AvgSpamMetrics))
 }
