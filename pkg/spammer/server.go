@@ -13,5 +13,6 @@ func NewSpammerServer(spammer *Spammer, group *echo.Group) *SpammerServer {
 		Spammer: spammer,
 	}
 	s.configureRoutes(group)
+
 	return s
 }

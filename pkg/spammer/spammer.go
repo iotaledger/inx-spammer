@@ -339,6 +339,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 
 	if s.accountSender == nil || s.accountReceiver == nil {
 		logDebugStateErrorFunc(s.outputState, common.ErrMnemonicNotProvided)
+
 		return common.ErrMnemonicNotProvided
 	}
 
@@ -495,6 +496,7 @@ func (s *Spammer) startSpammerWorkers(valueSpamEnabled bool, bpsRateLimit float6
 				if currentProcessID != s.processID.Load() {
 					close(rateLimitAbortSignal)
 					rateLimitCtxCancel()
+
 					return
 				}
 
@@ -510,6 +512,7 @@ func (s *Spammer) startSpammerWorkers(valueSpamEnabled bool, bpsRateLimit float6
 					// received shutdown signal
 					close(rateLimitAbortSignal)
 					rateLimitCtxCancel()
+
 					return
 
 				case rateLimitChannel <- struct{}{}:
@@ -566,11 +569,13 @@ func (s *Spammer) startSpammerWorkers(valueSpamEnabled bool, bpsRateLimit float6
 				isHealthy, err := s.isNodeHealthyFunc()
 				if err != nil {
 					s.LogWarn(err)
+
 					continue
 				}
 
 				if !isHealthy {
 					time.Sleep(time.Second)
+
 					continue
 				}
 
@@ -578,6 +583,7 @@ func (s *Spammer) startSpammerWorkers(valueSpamEnabled bool, bpsRateLimit float6
 					if !errors.Is(err, common.ErrOperationAborted) {
 						s.LogWarn(err)
 					}
+
 					continue
 				}
 
@@ -789,6 +795,7 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 			// the pending transaction was affected by the ledger update.
 			// remove the pending transaction from the pending transactions map.
 			s.clearPendingTransactionWithoutLocking(pendingTx.BlockID)
+
 			continue
 		}
 
@@ -796,6 +803,7 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 			// the pending transaction was affected by the ledger update.
 			// remove the pending transaction from the pending transactions map.
 			s.clearPendingTransactionWithoutLocking(pendingTx.BlockID)
+
 			continue
 		}
 	}
@@ -814,12 +822,14 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 		if err != nil {
 			// an error occurred
 			conflicting = true
+
 			return
 		}
 
 		if metadata == nil {
 			// block unknown
 			conflicting = true
+
 			return
 		}
 
@@ -827,8 +837,10 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 			if metadata.IsConflicting {
 				// transaction was conflicting
 				conflicting = true
+
 				return
 			}
+
 			return
 		}
 
@@ -1046,6 +1058,7 @@ func (s *Spammer) BuildTaggedDataBlockAndSend(ctx context.Context) error {
 	if _, err := pow.DoPoW(ctx, block, float64(protocolParams.MinPoWScore), 1, s.refreshTipsInterval, func() (tips iotago.BlockIDs, err error) {
 		// refresh tips of the spammer if PoW takes longer than a configured duration.
 		_, refreshedTips, _, err := s.selectSpammerTips(ctx, iotago.BlockIDs{})
+
 		return refreshedTips, err
 	}); err != nil {
 		return err
@@ -1246,6 +1259,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 	if _, err := pow.DoPoW(ctx, block, float64(protocolParams.MinPoWScore), s.workersCountRunning, s.refreshTipsInterval, func() (tips iotago.BlockIDs, err error) {
 		// refresh tips of the spammer if PoW takes longer than a configured duration.
 		_, refreshedTips, _, err := s.selectSpammerTips(ctx, spamBuilder.requiredTips)
+
 		return refreshedTips, err
 	}); err != nil {
 		return nil, nil, err

@@ -65,6 +65,7 @@ func (hd *HDWallet) keyPair(acount uint64, isChange bool, addressIndex uint64) (
 	}
 
 	pubKey, privKey := slip10.Ed25519Key(key)
+
 	return ed25519.PrivateKey(privKey), ed25519.PublicKey(pubKey), nil
 }
 
@@ -74,6 +75,7 @@ func (hd *HDWallet) AddressSigner(index uint64) (iotago.AddressSigner, error) {
 		return nil, err
 	}
 	address := iotago.Ed25519AddressFromPubKey(pubKey)
+
 	return iotago.NewInMemoryAddressSigner(iotago.NewAddressKeysForEd25519Address(&address, privKey)), nil
 }
 
@@ -83,6 +85,7 @@ func (hd *HDWallet) Ed25519AddressFromIndex(index uint64) (*iotago.Ed25519Addres
 		return nil, err
 	}
 	address := iotago.Ed25519AddressFromPubKey(pubKey)
+
 	return &address, nil
 }
 
@@ -93,5 +96,6 @@ func (hd *HDWallet) Ed25519AddressAndSigner(index uint64) (*iotago.Ed25519Addres
 	}
 
 	address := iotago.Ed25519AddressFromPubKey(pubKey)
+
 	return &address, iotago.NewInMemoryAddressSigner(iotago.NewAddressKeysForEd25519Address(&address, privKey)), nil
 }

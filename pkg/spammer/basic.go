@@ -12,6 +12,7 @@ import (
 // collects Basic outputs from a given address.
 func collectBasicOutputsQuery(addressBech32 string) nodeclient.IndexerQuery {
 	falseCondition := false
+
 	return &nodeclient.BasicOutputsQuery{
 		AddressBech32: addressBech32,
 		IndexerExpirationParas: nodeclient.IndexerExpirationParas{

@@ -84,6 +84,7 @@ func configure() error {
 		}
 
 		handler.ServeHTTP(c.Response().Writer, c.Request())
+
 		return nil
 	})
 

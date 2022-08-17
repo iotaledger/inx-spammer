@@ -89,6 +89,7 @@ func consumeInputs[T UTXOInterface](inputs []T, onConsumeInput func(input T) (co
 	for _, utxo := range inputs {
 		if aborted {
 			remainingInputs = append(remainingInputs, utxo)
+
 			continue
 		}
 
@@ -96,6 +97,7 @@ func consumeInputs[T UTXOInterface](inputs []T, onConsumeInput func(input T) (co
 		if abort {
 			aborted = true
 			remainingInputs = append(remainingInputs, utxo)
+
 			continue
 		}
 

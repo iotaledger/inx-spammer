@@ -87,8 +87,10 @@ func provide(c *dig.Container) error {
 			if ok && st.Code() == codes.NotFound {
 				return nil, nil
 			}
+
 			return nil, err
 		}
+
 		return &spammer.Metadata{
 			IsReferenced:   metadata.GetReferencedByMilestoneIndex() != 0,
 			IsConflicting:  metadata.GetConflictReason() != inx.BlockMetadata_CONFLICT_REASON_NONE,
@@ -144,6 +146,7 @@ func provide(c *dig.Container) error {
 				if err != nil {
 					return false, err
 				}
+
 				return status.IsHealthy, nil
 			},
 			deps.NodeBridge.SubmitBlock,
@@ -182,6 +185,7 @@ func run() error {
 			if err != nil {
 				deps.ShutdownHandler.SelfShutdown(fmt.Sprintf("Spammer plugin hit a critical error while applying new ledger update: %s", err.Error()), true)
 			}
+
 			return err
 		}); err != nil {
 			deps.ShutdownHandler.SelfShutdown(fmt.Sprintf("Listening to LedgerUpdates failed, error: %s", err), true)

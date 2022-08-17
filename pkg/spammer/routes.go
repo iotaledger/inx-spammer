@@ -67,6 +67,7 @@ func (s *SpammerServer) configureRoutes(routeGroup *echo.Group) {
 		if err := s.Spammer.Stop(); err != nil {
 			return err
 		}
+
 		return c.JSON(http.StatusAccepted, nil)
 	})
 }

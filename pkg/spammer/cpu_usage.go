@@ -52,6 +52,7 @@ func (c *CPUUsageUpdater) Run(ctx context.Context) {
 		if err != nil {
 			c.err = ErrCPUPercentageUnknown
 			c.Unlock()
+
 			return
 		}
 		c.err = nil

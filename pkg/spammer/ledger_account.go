@@ -100,6 +100,7 @@ func (la *LedgerAccount) AppendFoundryOutput(foundryOutput *UTXO) error {
 		}
 
 		aliasOutput.AppendFoundryOutput(foundryOutput)
+
 		return nil
 	}
 

@@ -12,6 +12,7 @@ import (
 // collects NFT outputs from a given address.
 func collectNFTOutputsQuery(addressBech32 string) nodeclient.IndexerQuery {
 	falseCondition := false
+
 	return &nodeclient.NFTsQuery{
 		AddressBech32: addressBech32,
 		IndexerExpirationParas: nodeclient.IndexerExpirationParas{

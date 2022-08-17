@@ -451,6 +451,7 @@ func (s *Spammer) foundryOutputMeltNativeTokens(ctx context.Context, accountSend
 		if spamBuilder.InputConsumed(basicInput.OutputID()) {
 			return true, false
 		}
+
 		return false, false
 	})
 
