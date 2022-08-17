@@ -11,11 +11,11 @@ import (
 	iotago "github.com/iotaledger/iota.go/v3"
 )
 
-// 24 words
+// 24 words.
 const MnemonicSeedSize = 64
 
 // Registered coin types, https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-// BIP44 path scheme: m/purpose'/coin_type'/account'/change/address_index
+// BIP44 path scheme: m/purpose'/coin_type'/account'/change/address_index.
 const BIP32PathString = "44'/4218'/%d'/%d'/%d'"
 
 type HDWallet struct {

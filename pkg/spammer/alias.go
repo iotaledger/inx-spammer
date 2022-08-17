@@ -9,7 +9,7 @@ import (
 	"github.com/iotaledger/iota.go/v3/nodeclient"
 )
 
-// collects Alias outputs from a given address
+// collects Alias outputs from a given address.
 func collectAliasOutputsQuery(addressBech32 string) nodeclient.IndexerQuery {
 	return &nodeclient.AliasesQuery{
 		StateControllerBech32: addressBech32,

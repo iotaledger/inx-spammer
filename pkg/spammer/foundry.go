@@ -11,7 +11,7 @@ import (
 	"github.com/iotaledger/iota.go/v3/nodeclient"
 )
 
-// collects Foundry outputs from a given alias
+// collects Foundry outputs from a given alias.
 func collectFoundryOutputsQuery(addressBech32 string) nodeclient.IndexerQuery {
 	return &nodeclient.FoundriesQuery{
 		AliasAddressBech32: addressBech32,

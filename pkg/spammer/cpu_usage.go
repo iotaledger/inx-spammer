@@ -60,7 +60,7 @@ func (c *CPUUsageUpdater) Run(ctx context.Context) {
 	}
 }
 
-// CPUUsage returns latest cpu usage
+// CPUUsage returns latest cpu usage.
 func (c *CPUUsageUpdater) CPUUsage() (float64, error) {
 	c.RLock()
 	defer c.RUnlock()
@@ -68,7 +68,7 @@ func (c *CPUUsageUpdater) CPUUsage() (float64, error) {
 	return c.usage, c.err
 }
 
-// CPUUsageGuessWithAdditionalWorker returns guessed cpu usage with another core running at 100% load
+// CPUUsageGuessWithAdditionalWorker returns guessed cpu usage with another core running at 100% load.
 func (c *CPUUsageUpdater) CPUUsageGuessWithAdditionalWorker() (float64, error) {
 	cpuUsage, err := c.CPUUsage()
 	if err != nil {

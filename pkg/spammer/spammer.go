@@ -35,35 +35,35 @@ const (
 type outputState byte
 
 const (
-	// create basic output on sender address
+	// create basic output on sender address.
 	stateBasicOutputCreate outputState = iota
-	// send basic output from sender address to receiver address
+	// send basic output from sender address to receiver address.
 	stateBasicOutputSend
-	// create alias output on sender address
+	// create alias output on sender address.
 	stateAliasOutputCreate
-	// do an alias output state transition on sender address
+	// do an alias output state transition on sender address.
 	stateAliasOutputStateTransition
-	// create a token foundry output on sender address
+	// create a token foundry output on sender address.
 	stateFoundryOutputCreate
-	// mint native tokens on sender address
+	// mint native tokens on sender address.
 	stateFoundryOutputMintNativeTokens
-	// sent native tokens from sender address to receiver address
+	// sent native tokens from sender address to receiver address.
 	stateBasicOutputSendNativeTokens
-	// transition ownership of alias output from sender to receiver
+	// transition ownership of alias output from sender to receiver.
 	stateAliasOutputGovernanceTransition
-	// melt native tokens on receiver address
+	// melt native tokens on receiver address.
 	stateFoundryOutputMeltNativeTokens
-	// destroy foundry output on receiver address
+	// destroy foundry output on receiver address.
 	stateFoundryOutputDestroy
-	// destroy alias output on receiver address
+	// destroy alias output on receiver address.
 	stateAliasOutputDestroy
-	// create NFT output on sender address
+	// create NFT output on sender address.
 	stateNFTOutputCreate
-	// send NFT output from sender address to receiver address
+	// send NFT output from sender address to receiver address.
 	stateNFTOutputSend
-	// destroy NFT output on receiver address
+	// destroy NFT output on receiver address.
 	stateNFTOutputDestroy
-	// send basic output from receiver address to sender address
+	// send basic output from receiver address to sender address.
 	stateBasicOutputCollect
 )
 

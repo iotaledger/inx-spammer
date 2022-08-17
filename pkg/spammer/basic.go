@@ -9,7 +9,7 @@ import (
 	"github.com/iotaledger/iota.go/v3/nodeclient"
 )
 
-// collects Basic outputs from a given address
+// collects Basic outputs from a given address.
 func collectBasicOutputsQuery(addressBech32 string) nodeclient.IndexerQuery {
 	falseCondition := false
 	return &nodeclient.BasicOutputsQuery{

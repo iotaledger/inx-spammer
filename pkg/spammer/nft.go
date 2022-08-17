@@ -9,7 +9,7 @@ import (
 	"github.com/iotaledger/iota.go/v3/nodeclient"
 )
 
-// collects NFT outputs from a given address
+// collects NFT outputs from a given address.
 func collectNFTOutputsQuery(addressBech32 string) nodeclient.IndexerQuery {
 	falseCondition := false
 	return &nodeclient.NFTsQuery{

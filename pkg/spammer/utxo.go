@@ -10,7 +10,7 @@ type UTXOInterface interface {
 	PendingBlockID() iotago.BlockID
 }
 
-// unspent outputs
+// unspent outputs.
 type UTXO struct {
 	outputID iotago.OutputID
 	output   iotago.Output
@@ -109,6 +109,6 @@ func consumeInputs[T UTXOInterface](inputs []T, onConsumeInput func(input T) (co
 	return consumedInputs, remainingInputs
 }
 
-// type guards
+// type guards.
 var _ UTXOInterface = &UTXO{}
 var _ UTXOInterface = &AliasUTXO{}
