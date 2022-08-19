@@ -459,7 +459,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			s.outputState = stateFoundryOutputDestroy
 
 		case stateFoundryOutputDestroy:
-			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamBurnFoundry {
+			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamBurnFoundry && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken) {
 				if err := s.foundryOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
 				}
@@ -468,7 +468,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			s.outputState = stateAliasOutputDestroy
 
 		case stateAliasOutputDestroy:
-			if s.valueSpamCreateAlias && s.valueSpamBurnAlias {
+			if s.valueSpamCreateAlias && s.valueSpamBurnAlias && ((!s.valueSpamCreateFoundry || s.valueSpamBurnFoundry) && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken)) {
 				if err := s.aliasOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
 				}
