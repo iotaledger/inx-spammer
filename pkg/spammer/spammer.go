@@ -234,7 +234,7 @@ func New(
 		workersCount = runtime.NumCPU() - 1
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var err error
@@ -255,9 +255,18 @@ func New(
 		log.Infof("Address for Sender: %s", accountSender.AddressBech32())
 		log.Infof("Address for Receiver: %s", accountReceiver.AddressBech32())
 
-		indexer, err = nodeClient.Indexer(ctx)
-		if err != nil {
-			return nil, err
+		for {
+			indexer, err = nodeClient.Indexer(ctx)
+			if err != nil {
+				if ctx.Err() != nil {
+					return nil, err
+				}
+				time.Sleep(time.Second)
+
+				continue
+			}
+
+			break
 		}
 	}
 
