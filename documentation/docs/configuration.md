@@ -89,7 +89,7 @@ Example:
 | destroyFoundry     | Whether to destroy foundries                                       | boolean | true          |
 | mintNativeToken    | Whether to mint native tokens                                      | boolean | true          |
 | meltNativeToken    | Whether to melt native tokens                                      | boolean | true          |
-| createNFT          | Whether to mint NFTs                                               | boolean | true          |
+| createNFT          | Whether to create NFTs                                             | boolean | true          |
 | destroyNFT         | Whether to destroy NFTs                                            | boolean | true          |
 
 ### <a id="spammer_tipselection"></a> Tipselection
