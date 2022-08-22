@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/atomic"
 
+	"github.com/iotaledger/hive.go/core/contextutils"
 	hivedaemon "github.com/iotaledger/hive.go/core/daemon"
 	"github.com/iotaledger/hive.go/core/datastructure/timeheap"
 	"github.com/iotaledger/hive.go/core/events"
@@ -1145,8 +1146,14 @@ func (s *Spammer) BuildTaggedDataBlockAndSend(ctx context.Context) error {
 	timeStart := time.Now()
 	// we only use 1 thread to do the PoW for tagged data spam blocks, because several threads run in parallel
 	if _, err := pow.DoPoW(ctx, block, float64(protocolParams.MinPoWScore), 1, s.refreshTipsInterval, func() (tips iotago.BlockIDs, err error) {
+		selectTipsCtx, selectTipsCancel := context.WithTimeout(ctx, s.refreshTipsInterval)
+		defer selectTipsCancel()
+
+		mergedCtx, mergedCancel := contextutils.MergeContexts(ctx, selectTipsCtx)
+		defer mergedCancel()
+
 		// refresh tips of the spammer if PoW takes longer than a configured duration.
-		_, refreshedTips, _, err := s.selectSpammerTips(ctx, iotago.BlockIDs{})
+		_, refreshedTips, _, err := s.selectSpammerTips(mergedCtx, iotago.BlockIDs{})
 
 		return refreshedTips, err
 	}); err != nil {
@@ -1351,8 +1358,14 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 	timeStart := time.Now()
 	// we only use "workersCount" threads in parallel to do the PoW for transaction spam blocks, because only one spammer thread runs in parallel.
 	if _, err := pow.DoPoW(ctx, block, float64(protocolParams.MinPoWScore), s.workersCountRunning, s.refreshTipsInterval, func() (tips iotago.BlockIDs, err error) {
+		selectTipsCtx, selectTipsCancel := context.WithTimeout(ctx, s.refreshTipsInterval)
+		defer selectTipsCancel()
+
+		mergedCtx, mergedCancel := contextutils.MergeContexts(ctx, selectTipsCtx)
+		defer mergedCancel()
+
 		// refresh tips of the spammer if PoW takes longer than a configured duration.
-		_, refreshedTips, _, err := s.selectSpammerTips(ctx, spamBuilder.requiredTips)
+		_, refreshedTips, _, err := s.selectSpammerTips(mergedCtx, spamBuilder.requiredTips)
 
 		return refreshedTips, err
 	}); err != nil {
