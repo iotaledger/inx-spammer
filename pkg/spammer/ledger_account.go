@@ -126,7 +126,7 @@ func (la *LedgerAccount) AppendNFTOutput(nftOutput *UTXO) {
 	la.nftOutputs = append(la.nftOutputs, nftOutput)
 }
 
-func (la *LedgerAccount) queryIndexer(ctx context.Context, indexer nodeclient.IndexerClient, query nodeclient.IndexerQuery) ([]*UTXO, error) {
+func (la *LedgerAccount) queryIndexer(ctx context.Context, indexer nodeclient.IndexerClient, query nodeclient.IndexerQuery, maxResults ...int) ([]*UTXO, error) {
 
 	result, err := indexer.Outputs(ctx, query)
 	if err != nil {
@@ -134,7 +134,13 @@ func (la *LedgerAccount) queryIndexer(ctx context.Context, indexer nodeclient.In
 	}
 
 	utxos := []*UTXO{}
+	var i int
 	for result.Next() {
+		if (len(maxResults) > 0) && (i >= maxResults[0]) {
+			return utxos, nil
+		}
+		i++
+
 		outputs, err := result.Outputs()
 		if err != nil {
 			return nil, err
@@ -193,20 +199,20 @@ func (la *LedgerAccount) ClearSpentOutputs(spentsMap map[iotago.OutputID]struct{
 	la.nftOutputs = remainingNFTInputs
 }
 
-func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context, indexer nodeclient.IndexerClient) error {
+func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context, indexer nodeclient.IndexerClient, allowNativeTokens bool, maxResults ...int) error {
 
 	// first reset all known outputs
 	la.ResetUTXOs()
 
 	// get current unspent basic outputs
-	unspentBasicOutputs, err := la.queryIndexer(ctx, indexer, collectBasicOutputsQuery(la.AddressBech32()))
+	unspentBasicOutputs, err := la.queryIndexer(ctx, indexer, collectBasicOutputsQuery(la.AddressBech32(), allowNativeTokens), maxResults...)
 	if err != nil {
 		return err
 	}
 	la.basicOutputs = append(la.basicOutputs, unspentBasicOutputs...)
 
 	// get current unspent alias outputs
-	unspentAliasOutputsWithoutFoundries, err := la.queryIndexer(ctx, indexer, collectAliasOutputsQuery(la.AddressBech32()))
+	unspentAliasOutputsWithoutFoundries, err := la.queryIndexer(ctx, indexer, collectAliasOutputsQuery(la.AddressBech32()), maxResults...)
 	if err != nil {
 		return err
 	}
@@ -215,7 +221,7 @@ func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context, indexer no
 	unspentAliasOutputs := make([]*AliasUTXO, 0)
 	for _, aliasOutput := range unspentAliasOutputsWithoutFoundries {
 
-		foundryOutputs, err := la.queryIndexer(ctx, indexer, collectFoundryOutputsQuery(aliasOutput.Output().(*iotago.AliasOutput).AliasID.ToAddress().Bech32(la.protocolParametersFunc().Bech32HRP)))
+		foundryOutputs, err := la.queryIndexer(ctx, indexer, collectFoundryOutputsQuery(aliasOutput.Output().(*iotago.AliasOutput).AliasID.ToAddress().Bech32(la.protocolParametersFunc().Bech32HRP)), maxResults...)
 		if err != nil {
 			return err
 		}
@@ -225,7 +231,7 @@ func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context, indexer no
 	la.aliasOutputs = append(la.aliasOutputs, unspentAliasOutputs...)
 
 	// get current unspent NFT outputs
-	unspentNFTOutputs, err := la.queryIndexer(ctx, indexer, collectNFTOutputsQuery(la.AddressBech32()))
+	unspentNFTOutputs, err := la.queryIndexer(ctx, indexer, collectNFTOutputsQuery(la.AddressBech32()), maxResults...)
 	if err != nil {
 		return err
 	}

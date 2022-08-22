@@ -33,6 +33,11 @@ const (
 	AddressIndexReceiver = 1
 )
 
+const (
+	IndexerQueryMaxResults = 1000
+	IndexerQueryTimeout    = 30 * time.Second
+)
+
 type outputState byte
 
 const (
@@ -1018,16 +1023,19 @@ func (s *Spammer) getCurrentSpammerLedgerState() error {
 		return nodeclient.ErrIndexerPluginNotAvailable
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), IndexerQueryTimeout)
 	defer cancel()
 
+	// only query basic outputs with native tokens if we want to melt them
+	allowNativeTokens := s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamMintNativeToken && s.valueSpamMeltNativeToken
+
 	// get all known outputs from the indexer (sender)
-	if err := s.accountSender.QueryOutputsFromIndexer(ctx, s.indexer); err != nil {
+	if err := s.accountSender.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, IndexerQueryMaxResults); err != nil {
 		return err
 	}
 
 	// get all known outputs from the indexer (receiver)
-	if err := s.accountReceiver.QueryOutputsFromIndexer(ctx, s.indexer); err != nil {
+	if err := s.accountReceiver.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, IndexerQueryMaxResults); err != nil {
 		return err
 	}
 
