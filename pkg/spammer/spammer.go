@@ -1024,6 +1024,8 @@ func (s *Spammer) getCurrentSpammerLedgerState() error {
 		return nodeclient.ErrIndexerPluginNotAvailable
 	}
 
+	ts := time.Now()
+
 	ctx, cancel := context.WithTimeout(context.Background(), IndexerQueryTimeout)
 	defer cancel()
 
@@ -1031,14 +1033,23 @@ func (s *Spammer) getCurrentSpammerLedgerState() error {
 	allowNativeTokens := s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamMintNativeToken && s.valueSpamMeltNativeToken
 
 	// get all known outputs from the indexer (sender)
-	if err := s.accountSender.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, IndexerQueryMaxResults); err != nil {
+	if err := s.accountSender.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, true, s.valueSpamCreateAlias, s.valueSpamCreateAlias, s.valueSpamCreateNFT, IndexerQueryMaxResults); err != nil {
 		return err
 	}
 
+	receiversAliasOutputsUsed := s.valueSpamCreateAlias && s.valueSpamDestroyAlias && ((!s.valueSpamCreateFoundry || s.valueSpamDestroyFoundry) && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken))
+
 	// get all known outputs from the indexer (receiver)
-	if err := s.accountReceiver.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, IndexerQueryMaxResults); err != nil {
+	if err := s.accountReceiver.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, s.valueSpamCollectBasicOutput, receiversAliasOutputsUsed, receiversAliasOutputsUsed, s.valueSpamDestroyNFT, IndexerQueryMaxResults); err != nil {
 		return err
 	}
+
+	s.LogDebugf(`getCurrentSpammerLedgerState finised, took: %v
+	outputs sender:   basic: %d, alias: %d, foundry: %d, nft: %d
+	outputs receiver: basic: %d, alias: %d, foundry: %d, nft: %d`, time.Since(ts).Truncate(time.Millisecond),
+		s.accountSender.BasicOutputsCount(), s.accountSender.AliasOutputsCount(), s.accountSender.FoundryOutputsCount(), s.accountSender.NFTOutputsCount(),
+		s.accountReceiver.BasicOutputsCount(), s.accountReceiver.AliasOutputsCount(), s.accountReceiver.FoundryOutputsCount(), s.accountReceiver.NFTOutputsCount(),
+	)
 
 	return nil
 }

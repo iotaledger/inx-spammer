@@ -82,6 +82,10 @@ func (la *LedgerAccount) BasicOutputs() []*UTXO {
 	return la.basicOutputs
 }
 
+func (la *LedgerAccount) BasicOutputsCount() int {
+	return len(la.basicOutputs)
+}
+
 func (la *LedgerAccount) SetBasicOutputs(basicOutputs []*UTXO) {
 	la.basicOutputs = basicOutputs
 }
@@ -92,6 +96,10 @@ func (la *LedgerAccount) AppendBasicOutput(basicOutput *UTXO) {
 
 func (la *LedgerAccount) AliasOutputs() []*AliasUTXO {
 	return la.aliasOutputs
+}
+
+func (la *LedgerAccount) AliasOutputsCount() int {
+	return len(la.aliasOutputs)
 }
 
 func (la *LedgerAccount) SetAliasOutputs(aliasOutputs []*AliasUTXO) {
@@ -132,8 +140,21 @@ func (la *LedgerAccount) AppendFoundryOutput(foundryOutput *UTXO) error {
 	return fmt.Errorf("no alias output found for foundry output: %s", foundryID.String())
 }
 
+func (la *LedgerAccount) FoundryOutputsCount() int {
+	count := 0
+	for _, aliasOutput := range la.aliasOutputs {
+		count += len(aliasOutput.FoundryOutputs())
+	}
+
+	return count
+}
+
 func (la *LedgerAccount) NFTOutputs() []*UTXO {
 	return la.nftOutputs
+}
+
+func (la *LedgerAccount) NFTOutputsCount() int {
+	return len(la.nftOutputs)
 }
 
 func (la *LedgerAccount) SetNFTOutputs(nftOutputs []*UTXO) {
@@ -152,12 +173,8 @@ func (la *LedgerAccount) queryIndexer(ctx context.Context, indexer nodeclient.In
 	}
 
 	utxos := []*UTXO{}
-	var i int
+	var utxosCount int
 	for result.Next() {
-		if (len(maxResults) > 0) && (i >= maxResults[0]) {
-			return utxos, nil
-		}
-		i++
 
 		outputs, err := result.Outputs()
 		if err != nil {
@@ -166,11 +183,17 @@ func (la *LedgerAccount) queryIndexer(ctx context.Context, indexer nodeclient.In
 		outputIDs := result.Response.Items.MustOutputIDs()
 
 		for i := range outputs {
+			if (len(maxResults) > 0) && (utxosCount >= maxResults[0]) {
+				return utxos, nil
+			}
+
 			utxos = append(utxos, NewUTXO(
 				outputIDs[i],
 				outputs[i],
 				iotago.EmptyBlockID(),
 			))
+
+			utxosCount++
 		}
 	}
 	if result.Error != nil {
@@ -217,43 +240,56 @@ func (la *LedgerAccount) ClearSpentOutputs(spentsMap map[iotago.OutputID]struct{
 	la.nftOutputs = remainingNFTInputs
 }
 
-func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context, indexer nodeclient.IndexerClient, allowNativeTokens bool, maxResults ...int) error {
+func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context,
+	indexer nodeclient.IndexerClient,
+	allowNativeTokens bool,
+	queryBasicOutputs bool,
+	queryAliasOutputs bool,
+	queryFoundryOutputs bool,
+	queryNFTOutputs bool,
+	maxResults ...int) error {
 
 	// first reset all known outputs
 	la.ResetOutputs()
 
-	// get current unspent basic outputs
-	unspentBasicOutputs, err := la.queryIndexer(ctx, indexer, collectBasicOutputsQuery(la.AddressBech32(), allowNativeTokens), maxResults...)
-	if err != nil {
-		return err
-	}
-	la.basicOutputs = append(la.basicOutputs, unspentBasicOutputs...)
-
-	// get current unspent alias outputs
-	unspentAliasOutputsWithoutFoundries, err := la.queryIndexer(ctx, indexer, collectAliasOutputsQuery(la.AddressBech32()), maxResults...)
-	if err != nil {
-		return err
+	if queryBasicOutputs {
+		// get current unspent basic outputs
+		unspentBasicOutputs, err := la.queryIndexer(ctx, indexer, collectBasicOutputsQuery(la.AddressBech32(), allowNativeTokens), maxResults...)
+		if err != nil {
+			return err
+		}
+		la.basicOutputs = append(la.basicOutputs, unspentBasicOutputs...)
 	}
 
-	// get current unspent foundry outputs per alias
-	unspentAliasOutputs := make([]*AliasUTXO, 0)
-	for _, aliasOutput := range unspentAliasOutputsWithoutFoundries {
-
-		foundryOutputs, err := la.queryIndexer(ctx, indexer, collectFoundryOutputsQuery(aliasOutput.Output().(*iotago.AliasOutput).AliasID.ToAddress().Bech32(la.protocolParametersFunc().Bech32HRP)), maxResults...)
+	if queryAliasOutputs {
+		// get current unspent alias outputs
+		unspentAliasOutputsWithoutFoundries, err := la.queryIndexer(ctx, indexer, collectAliasOutputsQuery(la.AddressBech32()), maxResults...)
 		if err != nil {
 			return err
 		}
 
-		unspentAliasOutputs = append(unspentAliasOutputs, NewAliasUTXO(aliasOutput.OutputID(), aliasOutput.Output(), aliasOutput.PendingBlockID(), foundryOutputs))
+		// get current unspent foundry outputs per alias
+		unspentAliasOutputs := make([]*AliasUTXO, 0)
+		for _, aliasOutput := range unspentAliasOutputsWithoutFoundries {
+			if queryFoundryOutputs {
+				foundryOutputs, err := la.queryIndexer(ctx, indexer, collectFoundryOutputsQuery(aliasOutput.Output().(*iotago.AliasOutput).AliasID.ToAddress().Bech32(la.protocolParametersFunc().Bech32HRP)), maxResults...)
+				if err != nil {
+					return err
+				}
+				unspentAliasOutputs = append(unspentAliasOutputs, NewAliasUTXO(aliasOutput.OutputID(), aliasOutput.Output(), aliasOutput.PendingBlockID(), foundryOutputs))
+			}
+		}
+		la.aliasOutputs = append(la.aliasOutputs, unspentAliasOutputs...)
 	}
-	la.aliasOutputs = append(la.aliasOutputs, unspentAliasOutputs...)
 
-	// get current unspent NFT outputs
-	unspentNFTOutputs, err := la.queryIndexer(ctx, indexer, collectNFTOutputsQuery(la.AddressBech32()), maxResults...)
-	if err != nil {
-		return err
+	if queryNFTOutputs {
+		// get current unspent NFT outputs
+		unspentNFTOutputs, err := la.queryIndexer(ctx, indexer, collectNFTOutputsQuery(la.AddressBech32()), maxResults...)
+		if err != nil {
+			return err
+		}
+		la.nftOutputs = append(la.nftOutputs, unspentNFTOutputs...)
 	}
-	la.nftOutputs = append(la.nftOutputs, unspentNFTOutputs...)
 
 	return nil
 }
