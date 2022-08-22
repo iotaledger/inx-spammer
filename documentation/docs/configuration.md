@@ -84,13 +84,13 @@ Example:
 | sendBasicOutput    | Whether to send basic outputs                                      | boolean | true          |
 | collectBasicOutput | Whether to collect basic outputs                                   | boolean | true          |
 | createAlias        | Whether to create aliases                                          | boolean | true          |
-| burnAlias          | Whether to burn aliases                                            | boolean | true          |
+| destroyAlias       | Whether to destroy aliases                                         | boolean | true          |
 | createFoundry      | Whether to create foundries                                        | boolean | true          |
-| burnFoundry        | Whether to burn foundries                                          | boolean | true          |
+| destroyFoundry     | Whether to destroy foundries                                       | boolean | true          |
 | mintNativeToken    | Whether to mint native tokens                                      | boolean | true          |
 | meltNativeToken    | Whether to melt native tokens                                      | boolean | true          |
-| mintNFT            | Whether to mint NFTs                                               | boolean | true          |
-| meltNFT            | Whether to melt NFTs                                               | boolean | true          |
+| createNFT          | Whether to mint NFTs                                               | boolean | true          |
+| destroyNFT         | Whether to destroy NFTs                                            | boolean | true          |
 
 ### <a id="spammer_tipselection"></a> Tipselection
 
@@ -116,13 +116,13 @@ Example:
         "sendBasicOutput": true,
         "collectBasicOutput": true,
         "createAlias": true,
-        "burnAlias": true,
+        "destroyAlias": true,
         "createFoundry": true,
-        "burnFoundry": true,
+        "destroyFoundry": true,
         "mintNativeToken": true,
         "meltNativeToken": true,
-        "mintNFT": true,
-        "meltNFT": true
+        "createNFT": true,
+        "destroyNFT": true
       },
       "tipselection": {
         "nonLazyTipsThreshold": 0,

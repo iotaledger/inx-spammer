@@ -42,7 +42,7 @@ require (
 	github.com/iotaledger/inx-app v1.0.0-beta.9 // indirect
 	github.com/iotaledger/inx/go v1.0.0-beta.5 // indirect
 	github.com/iotaledger/iota.go v1.0.0 // indirect
-	github.com/iotaledger/iota.go/v3 v3.0.0-beta.6 // indirect
+	github.com/iotaledger/iota.go/v3 v3.0.0-beta.7 // indirect
 	github.com/knadh/koanf v1.4.3 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect

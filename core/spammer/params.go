@@ -31,13 +31,13 @@ type ParametersSpammer struct {
 		SendBasicOutput    bool `default:"true" usage:"whether to send basic outputs"`
 		CollectBasicOutput bool `default:"true" usage:"whether to collect basic outputs"`
 		CreateAlias        bool `default:"true" usage:"whether to create aliases"`
-		BurnAlias          bool `default:"true" usage:"whether to burn aliases"`
+		DestroyAlias       bool `default:"true" usage:"whether to destroy aliases"`
 		CreateFoundry      bool `default:"true" usage:"whether to create foundries"`
-		BurnFoundry        bool `default:"true" usage:"whether to burn foundries"`
+		DestroyFoundry     bool `default:"true" usage:"whether to destroy foundries"`
 		MintNativeToken    bool `default:"true" usage:"whether to mint native tokens"`
 		MeltNativeToken    bool `default:"true" usage:"whether to melt native tokens"`
-		MintNFT            bool `default:"true" usage:"whether to mint NFTs"`
-		MeltNFT            bool `default:"true" usage:"whether to melt NFTs"`
+		CreateNFT          bool `default:"true" usage:"whether to mint NFTs"`
+		DestroyNFT         bool `default:"true" usage:"whether to destroy NFTs"`
 	}
 
 	Tipselection struct {

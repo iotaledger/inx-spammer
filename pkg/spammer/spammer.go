@@ -147,13 +147,13 @@ type Spammer struct {
 	valueSpamSendBasicOutput    bool
 	valueSpamCollectBasicOutput bool
 	valueSpamCreateAlias        bool
-	valueSpamBurnAlias          bool
+	valueSpamDestroyAlias       bool
 	valueSpamCreateFoundry      bool
-	valueSpamBurnFoundry        bool
+	valueSpamDestroyFoundry     bool
 	valueSpamMintNativeToken    bool
 	valueSpamMeltNativeToken    bool
-	valueSpamMintNFT            bool
-	valueSpamMeltNFT            bool
+	valueSpamCreateNFT          bool
+	valueSpamDestroyNFT         bool
 	nonLazyTipsThreshold        uint32
 	semiLazyTipsThreshold       uint32
 	refreshTipsInterval         time.Duration
@@ -210,13 +210,13 @@ func New(
 	valueSpamSendBasicOutput bool,
 	valueSpamCollectBasicOutput bool,
 	valueSpamCreateAlias bool,
-	valueSpamBurnAlias bool,
+	valueSpamDestroyAlias bool,
 	valueSpamCreateFoundry bool,
-	valueSpamBurnFoundry bool,
+	valueSpamDestroyFoundry bool,
 	valueSpamMintNativeToken bool,
 	valueSpamMeltNativeToken bool,
-	valueSpamMintNFT bool,
-	valueSpamMeltNFT bool,
+	valueSpamCreateNFT bool,
+	valueSpamDestroyNFT bool,
 	nonLazyTipsThreshold uint32,
 	semiLazyTipsThreshold uint32,
 	refreshTipsInterval time.Duration,
@@ -275,13 +275,13 @@ func New(
 		valueSpamSendBasicOutput:    valueSpamSendBasicOutput,
 		valueSpamCollectBasicOutput: valueSpamCollectBasicOutput,
 		valueSpamCreateAlias:        valueSpamCreateAlias,
-		valueSpamBurnAlias:          valueSpamBurnAlias,
+		valueSpamDestroyAlias:       valueSpamDestroyAlias,
 		valueSpamCreateFoundry:      valueSpamCreateFoundry,
-		valueSpamBurnFoundry:        valueSpamBurnFoundry,
+		valueSpamDestroyFoundry:     valueSpamDestroyFoundry,
 		valueSpamMintNativeToken:    valueSpamMintNativeToken,
 		valueSpamMeltNativeToken:    valueSpamMeltNativeToken,
-		valueSpamMintNFT:            valueSpamMintNFT,
-		valueSpamMeltNFT:            valueSpamMeltNFT,
+		valueSpamCreateNFT:          valueSpamCreateNFT,
+		valueSpamDestroyNFT:         valueSpamDestroyNFT,
 		nonLazyTipsThreshold:        nonLazyTipsThreshold,
 		semiLazyTipsThreshold:       semiLazyTipsThreshold,
 		refreshTipsInterval:         refreshTipsInterval,
@@ -465,7 +465,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			s.outputState = stateFoundryOutputDestroy
 
 		case stateFoundryOutputDestroy:
-			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamBurnFoundry && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken) {
+			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamDestroyFoundry && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken) {
 				if err := s.foundryOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
 				}
@@ -474,7 +474,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			s.outputState = stateAliasOutputDestroy
 
 		case stateAliasOutputDestroy:
-			if s.valueSpamCreateAlias && s.valueSpamBurnAlias && ((!s.valueSpamCreateFoundry || s.valueSpamBurnFoundry) && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken)) {
+			if s.valueSpamCreateAlias && s.valueSpamDestroyAlias && ((!s.valueSpamCreateFoundry || s.valueSpamDestroyFoundry) && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken)) {
 				if err := s.aliasOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
 				}
@@ -483,7 +483,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			s.outputState = stateNFTOutputCreate
 
 		case stateNFTOutputCreate:
-			if s.valueSpamMintNFT {
+			if s.valueSpamCreateNFT {
 				if err := s.nftOutputCreate(ctx, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
 				}
@@ -492,7 +492,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			s.outputState = stateNFTOutputSend
 
 		case stateNFTOutputSend:
-			if s.valueSpamMintNFT {
+			if s.valueSpamCreateNFT {
 				if err := s.nftOutputSend(ctx, s.accountSender, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
 				}
@@ -501,7 +501,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			s.outputState = stateNFTOutputDestroy
 
 		case stateNFTOutputDestroy:
-			if s.valueSpamMintNFT && s.valueSpamMeltNFT {
+			if s.valueSpamCreateNFT && s.valueSpamDestroyNFT {
 				if err := s.nftOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
 				}
