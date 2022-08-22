@@ -48,9 +48,27 @@ func (la *LedgerAccount) Signer() iotago.AddressSigner {
 	return la.signer
 }
 
-func (la *LedgerAccount) ResetUTXOs() {
+func (la *LedgerAccount) ResetOutputs() {
 	la.basicOutputs = make([]*UTXO, 0)
 	la.aliasOutputs = make([]*AliasUTXO, 0)
+	la.nftOutputs = make([]*UTXO, 0)
+}
+
+func (la *LedgerAccount) ResetBasicOutputs() {
+	la.basicOutputs = make([]*UTXO, 0)
+}
+
+func (la *LedgerAccount) ResetAliasOutputs() {
+	la.aliasOutputs = make([]*AliasUTXO, 0)
+}
+
+func (la *LedgerAccount) ResetFoundryOutputs() {
+	for _, aliasInput := range la.aliasOutputs {
+		aliasInput.foundryOutputs = make([]*UTXO, 0)
+	}
+}
+
+func (la *LedgerAccount) ResetNFTOutputs() {
 	la.nftOutputs = make([]*UTXO, 0)
 }
 
@@ -202,7 +220,7 @@ func (la *LedgerAccount) ClearSpentOutputs(spentsMap map[iotago.OutputID]struct{
 func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context, indexer nodeclient.IndexerClient, allowNativeTokens bool, maxResults ...int) error {
 
 	// first reset all known outputs
-	la.ResetUTXOs()
+	la.ResetOutputs()
 
 	// get current unspent basic outputs
 	unspentBasicOutputs, err := la.queryIndexer(ctx, indexer, collectBasicOutputsQuery(la.AddressBech32(), allowNativeTokens), maxResults...)
@@ -238,4 +256,25 @@ func (la *LedgerAccount) QueryOutputsFromIndexer(ctx context.Context, indexer no
 	la.nftOutputs = append(la.nftOutputs, unspentNFTOutputs...)
 
 	return nil
+}
+
+func (la *LedgerAccount) CleanupOwnershipBasicOutputs() {
+	basicOutputs := make([]*UTXO, 0)
+	for _, basicInput := range la.basicOutputs {
+
+		basicOutput, ok := basicInput.Output().(*iotago.BasicOutput)
+		if !ok {
+			panic(fmt.Sprintf("invalid type: expected *iotago.BasicOutput, got %T", basicInput.Output()))
+		}
+
+		nativeTokens := basicOutput.NativeTokenList().MustSet()
+		if len(nativeTokens) != 0 {
+			// output contains native tokens, ignore that output
+			continue
+		}
+
+		basicOutputs = append(basicOutputs, basicInput)
+	}
+
+	la.basicOutputs = basicOutputs
 }

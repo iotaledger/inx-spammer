@@ -516,6 +516,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 				}
 				executed = true
 			}
+			s.cleanupOwnership()
 			s.outputState = stateBasicOutputCreate
 			s.LogDebug("spam cycle complete")
 		}
@@ -946,8 +947,8 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 	if conflicting {
 		// there was a conflict in the chain
 		// forget all known outputs
-		s.accountSender.ResetUTXOs()
-		s.accountReceiver.ResetUTXOs()
+		s.accountSender.ResetOutputs()
+		s.accountReceiver.ResetOutputs()
 
 		// recreate the pending transactions map
 		s.pendingTransactionsMap = make(map[iotago.BlockID]*pendingTransaction)
@@ -1500,4 +1501,41 @@ func (s *Spammer) bookCreatedOutputs(createdOutputs []UTXOInterface, basicOutput
 	}
 
 	return nil
+}
+
+// cleanupOwnership removes tracking of outputs if we don't destroy them to keep the memory usage of the spammer bounded.
+func (s *Spammer) cleanupOwnership() {
+
+	if !(s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamMintNativeToken) {
+		// sender's basic outputs with native tokens are never used => cleanup
+		s.accountSender.CleanupOwnershipBasicOutputs()
+	}
+
+	if !s.valueSpamCollectBasicOutput {
+		// receiver's basic outputs are never used => cleanup
+		s.accountReceiver.ResetBasicOutputs()
+	}
+
+	if !s.valueSpamCreateAlias {
+		// sender's alias outputs are never used => cleanup
+		s.accountSender.ResetAliasOutputs()
+	} else {
+		// there should be no foundry outputs in the sender's alias outputs anyway => cleanup
+		s.accountSender.ResetFoundryOutputs()
+	}
+
+	if !(s.valueSpamCreateAlias && s.valueSpamDestroyAlias && ((!s.valueSpamCreateFoundry || s.valueSpamDestroyFoundry) && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken))) {
+		// receiver's alias outputs are never used => cleanup
+		s.accountReceiver.ResetAliasOutputs()
+	}
+
+	if !s.valueSpamCreateNFT {
+		// sender's NFT outputs are never used => cleanup
+		s.accountSender.ResetNFTOutputs()
+	}
+
+	if !s.valueSpamDestroyNFT {
+		// receiver's NFT outputs are never used => cleanup
+		s.accountReceiver.ResetNFTOutputs()
+	}
 }
