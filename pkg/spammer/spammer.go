@@ -563,8 +563,8 @@ func (s *Spammer) startSpammerWorkers(valueSpamEnabled bool, bpsRateLimit float6
 		spammerWorkerCount = 1
 	}
 
-	var rateLimitChannel chan struct{} = nil
-	var rateLimitAbortSignal chan struct{} = nil
+	var rateLimitChannel chan struct{}
+	var rateLimitAbortSignal chan struct{}
 	currentProcessID := s.processID.Load()
 
 	if bpsRateLimit != 0.0 {
@@ -1231,7 +1231,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 	senderAddress := spamBuilder.accountSender.Address()
 
 	// add all inputs
-	var remainder int64 = 0
+	var remainder int64
 	consumedInputIDs := iotago.OutputIDs{}
 	for _, input := range spamBuilder.consumedInputs {
 		remainder += int64(input.Output().Deposit())
@@ -1321,7 +1321,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 	}
 
 	// add all outputs and calculate the remainder
-	var remainderOutputIndex uint16 = 0
+	var remainderOutputIndex uint16
 	for i, outputWithOwnership := range spamBuilder.createdOutputs {
 		output := outputWithOwnership.Output
 
@@ -1435,7 +1435,7 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 
 	createdOutputs := make([]UTXOInterface, 0)
 
-	var outputIndex uint16 = 0
+	var outputIndex uint16
 	for _, outputWithOwnership := range spamBuilder.createdOutputs {
 		output := outputWithOwnership.Output
 		if output.Type() == iotago.OutputAlias {
