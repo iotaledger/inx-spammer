@@ -35,7 +35,7 @@ const (
 
 const (
 	IndexerQueryMaxResults = 1000
-	IndexerQueryTimeout    = 30 * time.Second
+	IndexerQueryTimeout    = 15 * time.Second
 )
 
 type outputState byte
@@ -797,7 +797,7 @@ func (s *Spammer) Start(valueSpamEnabled *bool, bpsRateLimit *float64, cpuMaxUsa
 		workersCountCfg = 1
 	}
 
-	if err := s.getCurrentSpammerLedgerState(); err != nil {
+	if err := s.getCurrentSpammerLedgerState(context.Background()); err != nil {
 		return err
 	}
 
@@ -980,8 +980,13 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 	// but there are no new outputs created by the spammer.
 	// in this case we query the indexer again to get the latest state.
 	if s.accountSender.Empty() && s.accountReceiver.Empty() && s.isValueSpamEnabled {
-		if err := s.getCurrentSpammerLedgerState(); err != nil {
-			return err
+		if err := s.getCurrentSpammerLedgerState(ctx); err != nil {
+			// there was an error getting the current ledger state
+			// forget all known outputs
+			s.accountSender.ResetOutputs()
+			s.accountReceiver.ResetOutputs()
+
+			s.LogWarnf("failed to get current spammer ledger state: %s", err.Error())
 		}
 	}
 
@@ -1023,7 +1028,7 @@ func (s *Spammer) waitForIndexerUpdate(ctx context.Context, msIndex iotago.Miles
 	return ctxWaitForUpdate.Err()
 }
 
-func (s *Spammer) getCurrentSpammerLedgerState() error {
+func (s *Spammer) getCurrentSpammerLedgerState(ctx context.Context) error {
 
 	if s.accountSender == nil || s.accountReceiver == nil {
 		return nil
@@ -1035,25 +1040,25 @@ func (s *Spammer) getCurrentSpammerLedgerState() error {
 
 	ts := time.Now()
 
-	ctx, cancel := context.WithTimeout(context.Background(), IndexerQueryTimeout)
-	defer cancel()
+	ctxQuery, cancelQuery := context.WithTimeout(ctx, IndexerQueryTimeout)
+	defer cancelQuery()
 
 	// only query basic outputs with native tokens if we want to melt them
 	allowNativeTokens := s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamMintNativeToken && s.valueSpamMeltNativeToken
 
 	// get all known outputs from the indexer (sender)
-	if err := s.accountSender.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, true, s.valueSpamCreateAlias, s.valueSpamCreateAlias, s.valueSpamCreateNFT, IndexerQueryMaxResults); err != nil {
+	if err := s.accountSender.QueryOutputsFromIndexer(ctxQuery, s.indexer, allowNativeTokens, true, s.valueSpamCreateAlias, s.valueSpamCreateAlias, s.valueSpamCreateNFT, IndexerQueryMaxResults); err != nil {
 		return err
 	}
 
 	receiversAliasOutputsUsed := s.valueSpamCreateAlias && s.valueSpamDestroyAlias && ((!s.valueSpamCreateFoundry || s.valueSpamDestroyFoundry) && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken))
 
 	// get all known outputs from the indexer (receiver)
-	if err := s.accountReceiver.QueryOutputsFromIndexer(ctx, s.indexer, allowNativeTokens, s.valueSpamCollectBasicOutput, receiversAliasOutputsUsed, receiversAliasOutputsUsed, s.valueSpamDestroyNFT, IndexerQueryMaxResults); err != nil {
+	if err := s.accountReceiver.QueryOutputsFromIndexer(ctxQuery, s.indexer, allowNativeTokens, s.valueSpamCollectBasicOutput, receiversAliasOutputsUsed, receiversAliasOutputsUsed, s.valueSpamDestroyNFT, IndexerQueryMaxResults); err != nil {
 		return err
 	}
 
-	s.LogDebugf(`getCurrentSpammerLedgerState finised, took: %v
+	s.LogDebugf(`getCurrentSpammerLedgerState finished, took: %v
 	outputs sender:   basic: %d, alias: %d, foundry: %d, nft: %d
 	outputs receiver: basic: %d, alias: %d, foundry: %d, nft: %d`, time.Since(ts).Truncate(time.Millisecond),
 		s.accountSender.BasicOutputsCount(), s.accountSender.AliasOutputsCount(), s.accountSender.FoundryOutputsCount(), s.accountSender.NFTOutputsCount(),
