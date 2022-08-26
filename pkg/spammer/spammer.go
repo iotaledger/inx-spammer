@@ -234,7 +234,7 @@ func New(
 		workersCount = runtime.NumCPU() - 1
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), IndexerQueryTimeout)
 	defer cancel()
 
 	var err error
@@ -955,20 +955,12 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 
 	if conflicting {
 		// there was a conflict in the chain
-		// forget all known outputs
-		s.accountSender.ResetOutputs()
-		s.accountReceiver.ResetOutputs()
-
-		// recreate the pending transactions map
-		s.pendingTransactionsMap = make(map[iotago.BlockID]*pendingTransaction)
+		s.resetSpammerState()
 
 		// wait until the indexer got updated
 		if err := s.waitForIndexerUpdate(ctx, msIndex); err != nil {
 			return err
 		}
-
-		// reset the state if there was a conflict
-		s.outputState = stateBasicOutputCreate
 	} else {
 		// we only allow the spammer to create new transactions if there was no conflict in the last milestone.
 		s.currentLedgerMilestoneIndex = s.ledgerMilestoneIndex.Load()
@@ -982,15 +974,26 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 	if s.accountSender.Empty() && s.accountReceiver.Empty() && s.isValueSpamEnabled {
 		if err := s.getCurrentSpammerLedgerState(ctx); err != nil {
 			// there was an error getting the current ledger state
-			// forget all known outputs
-			s.accountSender.ResetOutputs()
-			s.accountReceiver.ResetOutputs()
+			s.resetSpammerState()
 
 			s.LogWarnf("failed to get current spammer ledger state: %s", err.Error())
 		}
 	}
 
 	return nil
+}
+
+// resetSpammerState resets the spammer state in case of a conflict.
+func (s *Spammer) resetSpammerState() {
+	// forget all known outputs
+	s.accountSender.ResetOutputs()
+	s.accountReceiver.ResetOutputs()
+
+	// recreate the pending transactions map
+	s.pendingTransactionsMap = make(map[iotago.BlockID]*pendingTransaction)
+
+	// reset the state if there was a conflict
+	s.outputState = stateBasicOutputCreate
 }
 
 // waitForIndexerUpdate waits until the indexer got updated to the expected milestone index.
@@ -1000,7 +1003,7 @@ func (s *Spammer) waitForIndexerUpdate(ctx context.Context, msIndex iotago.Miles
 		return nodeclient.ErrIndexerPluginNotAvailable
 	}
 
-	ctxWaitForUpdate, cancelWaitForUpdate := context.WithTimeout(ctx, 10*time.Second)
+	ctxWaitForUpdate, cancelWaitForUpdate := context.WithTimeout(ctx, IndexerQueryTimeout)
 	defer cancelWaitForUpdate()
 
 	for ctxWaitForUpdate.Err() == nil {
@@ -1409,6 +1412,10 @@ func (s *Spammer) BuildTransactionPayloadBlockAndSend(ctx context.Context, spamB
 
 	blockID, err := s.sendBlockFunc(ctx, block)
 	if err != nil {
+		// there was an error during sending a transaction
+		// it is high likely that something is non-solid or below max depth
+		s.resetSpammerState()
+
 		return nil, nil, fmt.Errorf("send transaction block failed, error: %w", err)
 	}
 
