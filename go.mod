@@ -4,10 +4,10 @@ go 1.19
 
 require (
 	github.com/iotaledger/hive.go/core v1.0.0-beta.2
-	github.com/iotaledger/hive.go/serializer/v2 v2.0.0-beta.1
+	github.com/iotaledger/hive.go/serializer/v2 v2.0.0-beta.3
 	github.com/iotaledger/inx-app v1.0.0-beta.9
-	github.com/iotaledger/inx/go v1.0.0-beta.5
-	github.com/iotaledger/iota.go/v3 v3.0.0-beta.7
+	github.com/iotaledger/inx/go v1.0.0-beta.6
+	github.com/iotaledger/iota.go/v3 v3.0.0-beta.8
 	github.com/labstack/echo/v4 v4.8.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.0
@@ -29,7 +29,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.4.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
-	github.com/ethereum/go-ethereum v1.10.21 // indirect
+	github.com/ethereum/go-ethereum v1.10.23 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/getsentry/sentry-go v0.13.0 // indirect
@@ -64,7 +64,7 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
-	github.com/rogpeppe/go-internal v1.8.1 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.5.0 // indirect
@@ -79,14 +79,14 @@ require (
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.22.0 // indirect
-	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
-	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
+	golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d // indirect
+	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
+	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/genproto v0.0.0-20220817144833-d7fd3f11b9b1 // indirect
-	google.golang.org/grpc v1.48.0
+	google.golang.org/genproto v0.0.0-20220829144015-23454907ede3 // indirect
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
