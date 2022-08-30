@@ -6,6 +6,13 @@
   "inx": {
     "address": "localhost:9029"
   },
+  "restAPI": {
+    "bindAddress": "localhost:9092",
+    "debugRequestLoggerEnabled": false
+  },
+  "pow": {
+    "refreshTipsInterval": "5s"
+  },
   "spammer": {
     "autostart": false,
     "bpsRateLimit": 0,
@@ -31,13 +38,6 @@
       "nonLazyTipsThreshold": 0,
       "semiLazyTipsThreshold": 30
     }
-  },
-  "restAPI": {
-    "bindAddress": "localhost:9092",
-    "debugRequestLoggerEnabled": false
-  },
-  "pow": {
-    "refreshTipsInterval": "5s"
   },
   "profiling": {
     "enabled": false,

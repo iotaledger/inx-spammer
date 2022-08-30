@@ -67,7 +67,41 @@ Example:
   }
 ```
 
-## <a id="spammer"></a> 3. Spammer
+## <a id="restapi"></a> 3. RestAPI
+
+| Name                      | Description                                               | Type    | Default value    |
+| ------------------------- | --------------------------------------------------------- | ------- | ---------------- |
+| bindAddress               | The bind address on which the Spammer HTTP server listens | string  | "localhost:9092" |
+| debugRequestLoggerEnabled | Whether the debug logging for requests should be enabled  | boolean | false            |
+
+Example:
+
+```json
+  {
+    "restAPI": {
+      "bindAddress": "localhost:9092",
+      "debugRequestLoggerEnabled": false
+    }
+  }
+```
+
+## <a id="pow"></a> 4. Pow
+
+| Name                | Description                             | Type   | Default value |
+| ------------------- | --------------------------------------- | ------ | ------------- |
+| refreshTipsInterval | Interval for refreshing tips during PoW | string | "5s"          |
+
+Example:
+
+```json
+  {
+    "pow": {
+      "refreshTipsInterval": "5s"
+    }
+  }
+```
+
+## <a id="spammer"></a> 5. Spammer
 
 | Name                                  | Description                                                                        | Type    | Default value                  |
 | ------------------------------------- | ---------------------------------------------------------------------------------- | ------- | ------------------------------ |
@@ -133,40 +167,6 @@ Example:
         "nonLazyTipsThreshold": 0,
         "semiLazyTipsThreshold": 30
       }
-    }
-  }
-```
-
-## <a id="restapi"></a> 4. RestAPI
-
-| Name                      | Description                                               | Type    | Default value    |
-| ------------------------- | --------------------------------------------------------- | ------- | ---------------- |
-| bindAddress               | The bind address on which the Spammer HTTP server listens | string  | "localhost:9092" |
-| debugRequestLoggerEnabled | Whether the debug logging for requests should be enabled  | boolean | false            |
-
-Example:
-
-```json
-  {
-    "restAPI": {
-      "bindAddress": "localhost:9092",
-      "debugRequestLoggerEnabled": false
-    }
-  }
-```
-
-## <a id="pow"></a> 5. Pow
-
-| Name                | Description                             | Type   | Default value |
-| ------------------- | --------------------------------------- | ------ | ------------- |
-| refreshTipsInterval | Interval for refreshing tips during PoW | string | "5s"          |
-
-Example:
-
-```json
-  {
-    "pow": {
-      "refreshTipsInterval": "5s"
     }
   }
 ```
