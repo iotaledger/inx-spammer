@@ -3,7 +3,7 @@ module github.com/iotaledger/inx-spammer
 go 1.19
 
 require (
-	github.com/iotaledger/hive.go/core v1.0.0-beta.4
+	github.com/iotaledger/hive.go/core v1.0.0-beta.5
 	github.com/iotaledger/hive.go/serializer/v2 v2.0.0-beta.3
 	github.com/iotaledger/inx-app v1.0.0-beta.10
 	github.com/iotaledger/inx/go v1.0.0-beta.6
@@ -13,7 +13,7 @@ require (
 	github.com/prometheus/client_golang v1.13.0
 	github.com/wollac/iota-crypto-demo v0.0.0-20220825203128-7e0bfe13faf6
 	go.uber.org/dig v1.15.0
-	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
+	golang.org/x/sync v0.0.0-20220907140024-f12130a52804 // indirect
 )
 
 require (
@@ -79,12 +79,12 @@ require (
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
-	golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d // indirect
-	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
-	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
+	golang.org/x/sys v0.0.0-20220908150016-7ac13a9a928d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
-	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/genproto v0.0.0-20220829175752-36a9c930ecbf // indirect
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1 // indirect
