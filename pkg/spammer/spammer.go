@@ -939,38 +939,50 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 		checkPendingBlockMetadata(pendingTx)
 	}
 
-	if conflicting {
-		// there was a conflict in the chain
+	// it may happen that after applying all ledger changes, there are no known outputs left.
+	// this mostly happens after a conflict, because updating the local state after a conflict
+	// may return outputs that are confirmed in the next milestone,
+	// but there are no new outputs created by the spammer.
+	// in this case we query the indexer again to get the latest state.
+	stateEmpty := s.accountSender.Empty() && s.accountReceiver.Empty() && s.isValueSpamEnabled
+
+	if conflicting || stateEmpty {
+		// there was a conflict in the chain, or the accounts were empty anyway
 		s.resetSpammerState()
 
 		// wait until the indexer got updated
 		if err := s.waitForIndexerUpdate(ctx, msIndex); err != nil {
 			return err
 		}
-	} else {
-		// we only allow the spammer to create new transactions if there was no conflict in the last milestone.
-		s.currentLedgerMilestoneIndex = s.ledgerMilestoneIndex.Load()
-	}
 
-	// it may happen that after applying all ledger changes, there are no known outputs left.
-	// this mostly happens after a conflict, because updating the local state after a conflict
-	// may return outputs that are confirmed in the next milestone,
-	// but there are no new outputs created by the spammer.
-	// in this case we query the indexer again to get the latest state.
-	if s.accountSender.Empty() && s.accountReceiver.Empty() && s.isValueSpamEnabled {
+		if conflicting {
+			s.LogDebug("conflict detected, fetching current spammer ledger state from indexer...")
+		} else {
+			s.LogDebug("accounts empty, fetching current spammer ledger state from indexer...")
+		}
+
 		if err := s.getCurrentSpammerLedgerState(ctx); err != nil {
 			// there was an error getting the current ledger state
 			s.resetSpammerState()
-
 			s.LogWarnf("failed to get current spammer ledger state: %s", err.Error())
+
+			return err
 		}
 	}
+
+	// we only allow the spammer to create new transactions if there was no conflict in the last milestone
+	// or if the spammer ledger state was successfully fetched.
+	s.currentLedgerMilestoneIndex = s.ledgerMilestoneIndex.Load()
 
 	return nil
 }
 
 // resetSpammerState resets the spammer state in case of a conflict.
 func (s *Spammer) resetSpammerState() {
+	// set the current ledger milestone index to zero to stop all ongoing spammers with the old ledger state
+	// until the correct state was fetched by the indexer at the next milestone.
+	s.currentLedgerMilestoneIndex = 0
+
 	// forget all known outputs
 	s.accountSender.ResetOutputs()
 	s.accountReceiver.ResetOutputs()
