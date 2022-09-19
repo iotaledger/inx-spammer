@@ -376,6 +376,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamSendBasicOutput {
 				if err := s.basicOutputSend(ctx, s.accountSender, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -385,6 +386,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamSendBasicOutput {
 				if err := s.basicOutputSend(ctx, s.accountSender, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -394,6 +396,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias {
 				if err := s.aliasOutputCreate(ctx, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -403,6 +406,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias {
 				if err := s.aliasOutputStateTransition(ctx, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -412,6 +416,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry {
 				if err := s.foundryOutputCreate(ctx, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -421,6 +426,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamMintNativeToken {
 				if err := s.foundryOutputMintNativeTokens(ctx, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -430,6 +436,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamMintNativeToken {
 				if err := s.basicOutputSendNativeTokens(ctx, s.accountSender, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -439,6 +446,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias {
 				if err := s.aliasOutputGovernanceTransition(ctx, s.accountSender, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -448,6 +456,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamMintNativeToken && s.valueSpamMeltNativeToken {
 				if err := s.foundryOutputMeltNativeTokens(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -457,6 +466,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias && s.valueSpamCreateFoundry && s.valueSpamDestroyFoundry && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken) {
 				if err := s.foundryOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -466,6 +476,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateAlias && s.valueSpamDestroyAlias && ((!s.valueSpamCreateFoundry || s.valueSpamDestroyFoundry) && (!s.valueSpamMintNativeToken || s.valueSpamMeltNativeToken)) {
 				if err := s.aliasOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -475,6 +486,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateNFT {
 				if err := s.nftOutputCreate(ctx, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -484,6 +496,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateNFT {
 				if err := s.nftOutputSend(ctx, s.accountSender, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -493,6 +506,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCreateNFT && s.valueSpamDestroyNFT {
 				if err := s.nftOutputDestroy(ctx, s.accountReceiver, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
@@ -502,6 +516,7 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 			if s.valueSpamCollectBasicOutput {
 				if err := s.basicOutputSend(ctx, s.accountReceiver, s.accountSender, outputStateNamesMap[s.outputState]); err != nil {
 					logDebugStateErrorFunc(s.outputState, err)
+					return nil
 				}
 				executed = true
 			}
