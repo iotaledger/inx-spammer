@@ -3,6 +3,7 @@ package spammer
 import (
 	"context"
 	"fmt"
+	"math"
 	"runtime"
 	"sort"
 	"strings"
@@ -17,7 +18,7 @@ import (
 	"github.com/iotaledger/hive.go/core/datastructure/timeheap"
 	"github.com/iotaledger/hive.go/core/events"
 	"github.com/iotaledger/hive.go/core/logger"
-	"github.com/iotaledger/hive.go/core/math"
+	hivemath "github.com/iotaledger/hive.go/core/math"
 	"github.com/iotaledger/hive.go/core/syncutils"
 	"github.com/iotaledger/inx-app/pow"
 	"github.com/iotaledger/inx-spammer/pkg/common"
@@ -185,8 +186,8 @@ type Spammer struct {
 	processID        atomic.Uint32
 	spammerWaitGroup sync.WaitGroup
 
-	ledgerMilestoneIndex        atomic.Uint32
-	currentLedgerMilestoneIndex uint32
+	ledgerMilestoneIndex        *atomic.Uint32
+	currentLedgerMilestoneIndex *atomic.Uint32
 
 	Events *Events
 
@@ -288,11 +289,13 @@ func New(
 			SpamPerformed:         events.NewEvent(SpamStatsCaller),
 			AvgSpamMetricsUpdated: events.NewEvent(AvgSpamMetricsCaller),
 		},
-		spammerAvgHeap:         timeheap.NewTimeHeap(),
-		accountSender:          accountSender,
-		accountReceiver:        accountReceiver,
-		pendingTransactionsMap: make(map[iotago.BlockID]*pendingTransaction),
-		outputState:            stateBasicOutputCreate,
+		spammerAvgHeap:              timeheap.NewTimeHeap(),
+		accountSender:               accountSender,
+		accountReceiver:             accountReceiver,
+		ledgerMilestoneIndex:        atomic.NewUint32(0),
+		currentLedgerMilestoneIndex: atomic.NewUint32(math.MaxUint32),
+		pendingTransactionsMap:      make(map[iotago.BlockID]*pendingTransaction),
+		outputState:                 stateBasicOutputCreate,
 	}, nil
 }
 
@@ -351,13 +354,13 @@ func (s *Spammer) doSpam(ctx context.Context, currentProcessID uint32) error {
 		return s.BuildTaggedDataBlockAndSend(ctx)
 	}
 
-	s.Lock()
-	defer s.Unlock()
-
-	if s.currentLedgerMilestoneIndex != s.ledgerMilestoneIndex.Load() {
+	if s.currentLedgerMilestoneIndex.Load() != s.ledgerMilestoneIndex.Load() {
 		// stop spamming if the ledger milestone has changed
 		return nil
 	}
+
+	s.Lock()
+	defer s.Unlock()
 
 	logDebugStateErrorFunc := func(state outputState, err error) {
 		s.LogDebugf("state: %d, %s failed: %s", state, outputStateNamesMap[s.outputState], err)
@@ -817,7 +820,7 @@ func (s *Spammer) MeasureSpammerMetrics() {
 	}
 
 	sentSpamBlocks := s.spammerMetrics.SentSpamBlocks.Load()
-	newBlocks := math.Uint32Diff(sentSpamBlocks, s.lastSentSpamBlocks)
+	newBlocks := hivemath.Uint32Diff(sentSpamBlocks, s.lastSentSpamBlocks)
 	s.lastSentSpamBlocks = sentSpamBlocks
 
 	s.spammerAvgHeap.Add(uint64(newBlocks))
@@ -972,16 +975,16 @@ func (s *Spammer) ApplyNewLedgerUpdate(ctx context.Context, msIndex iotago.Miles
 
 	// we only allow the spammer to create new transactions if there was no conflict in the last milestone
 	// or if the spammer ledger state was successfully fetched.
-	s.currentLedgerMilestoneIndex = s.ledgerMilestoneIndex.Load()
+	s.currentLedgerMilestoneIndex.Store(s.ledgerMilestoneIndex.Load())
 
 	return nil
 }
 
 // resetSpammerState resets the spammer state in case of a conflict.
 func (s *Spammer) resetSpammerState() {
-	// set the current ledger milestone index to zero to stop all ongoing spammers with the old ledger state
+	// set the current ledger milestone index to MaxUint32 to stop all ongoing spammers with the old ledger state
 	// until the correct state was fetched by the indexer at the next milestone.
-	s.currentLedgerMilestoneIndex = 0
+	s.currentLedgerMilestoneIndex.Store(math.MaxUint32)
 
 	// forget all known outputs
 	s.accountSender.ResetOutputs()
