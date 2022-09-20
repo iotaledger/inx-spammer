@@ -1010,7 +1010,7 @@ func (s *Spammer) waitForIndexerUpdate(ctx context.Context, msIndex iotago.Miles
 	for ctxWaitForUpdate.Err() == nil {
 
 		// we create a dummy call to check for the ledger index in the result
-		result, err := s.indexer.Outputs(ctx, &nodeclient.BasicOutputsQuery{
+		result, err := s.indexer.Outputs(ctxWaitForUpdate, &nodeclient.BasicOutputsQuery{
 			IndexerCursorParas: nodeclient.IndexerCursorParas{
 				PageSize: 1,
 			},
@@ -1023,6 +1023,10 @@ func (s *Spammer) waitForIndexerUpdate(ctx context.Context, msIndex iotago.Miles
 			if result.Response.LedgerIndex >= msIndex {
 				return nil
 			}
+		}
+
+		if result.Error != nil {
+			return fmt.Errorf("waitForIndexerUpdate failed, error: %w", result.Error)
 		}
 
 		// short sleep time to reduce load on the indexer
