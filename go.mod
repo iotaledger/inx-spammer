@@ -10,7 +10,7 @@ require (
 	github.com/iotaledger/iota.go/v3 v3.0.0-rc.1
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.13.0
+	github.com/prometheus/client_golang v1.13.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/wollac/iota-crypto-demo v0.0.0-20220825203128-7e0bfe13faf6
 	go.uber.org/atomic v1.10.0
