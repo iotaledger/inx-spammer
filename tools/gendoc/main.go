@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/iotaledger/hive.go/app"
 	"github.com/iotaledger/hive.go/apputils/config"
-	"github.com/iotaledger/hive.go/core/app"
 	spammerApp "github.com/iotaledger/inx-spammer/core/app"
 )
 
