@@ -1,7 +1,7 @@
 package spammer
 
 import (
-	"github.com/iotaledger/hive.go/core/events"
+	"github.com/iotaledger/hive.go/runtime/event"
 )
 
 // SpamStats are stats for a single spam block.
@@ -19,19 +19,7 @@ type AvgSpamMetrics struct {
 // Events are the events issued by the spammer.
 type Events struct {
 	// Fired when a single spam block is issued.
-	SpamPerformed *events.Event
+	SpamPerformed *event.Event1[*SpamStats]
 	// Fired when average spam metrics were updated by the worker.
-	AvgSpamMetricsUpdated *events.Event
-}
-
-// SpamStatsCaller is used to signal new SpamStats.
-func SpamStatsCaller(handler interface{}, params ...interface{}) {
-	//nolint:forcetypeassert // we will replace that with generic events anyway
-	handler.(func(*SpamStats))(params[0].(*SpamStats))
-}
-
-// AvgSpamMetricsCaller is used to signal new AvgSpamMetrics.
-func AvgSpamMetricsCaller(handler interface{}, params ...interface{}) {
-	//nolint:forcetypeassert // we will replace that with generic events anyway
-	handler.(func(*AvgSpamMetrics))(params[0].(*AvgSpamMetrics))
+	AvgSpamMetricsUpdated *event.Event1[*AvgSpamMetrics]
 }

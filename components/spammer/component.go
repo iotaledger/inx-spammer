@@ -13,9 +13,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/iotaledger/hive.go/core/app"
-	"github.com/iotaledger/hive.go/core/app/pkg/shutdown"
-	"github.com/iotaledger/hive.go/core/timeutil"
+	"github.com/iotaledger/hive.go/app"
+	"github.com/iotaledger/hive.go/app/shutdown"
+	"github.com/iotaledger/hive.go/runtime/timeutil"
 	"github.com/iotaledger/inx-app/pkg/httpserver"
 	"github.com/iotaledger/inx-app/pkg/nodebridge"
 	"github.com/iotaledger/inx-spammer/pkg/daemon"
@@ -27,28 +27,24 @@ import (
 )
 
 const (
-	APIRoute = "spammer/v1"
-
 	cpuUsageSampleTime            = 200 * time.Millisecond
 	cpuUsageSleepTime             = 200 * time.Millisecond
 	indexerPluginAvailableTimeout = 30 * time.Second
 )
 
 func init() {
-	CoreComponent = &app.CoreComponent{
-		Component: &app.Component{
-			Name:      "Spammer",
-			DepsFunc:  func(cDeps dependencies) { deps = cDeps },
-			Params:    params,
-			Provide:   provide,
-			Configure: configure,
-			Run:       run,
-		},
+	Component = &app.Component{
+		Name:      "Spammer",
+		DepsFunc:  func(cDeps dependencies) { deps = cDeps },
+		Params:    params,
+		Provide:   provide,
+		Configure: configure,
+		Run:       run,
 	}
 }
 
 var (
-	CoreComponent *app.CoreComponent
+	Component *app.Component
 
 	deps dependencies
 )
@@ -83,7 +79,7 @@ func provide(c *dig.Container) error {
 	}
 
 	fetchMetadata := func(blockID iotago.BlockID) (*spammer.Metadata, error) {
-		ctx, cancel := context.WithTimeout(CoreComponent.Daemon().ContextStopped(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(Component.Daemon().ContextStopped(), 5*time.Second)
 		defer cancel()
 
 		metadata, err := deps.NodeBridge.BlockMetadata(ctx, blockID)
@@ -114,12 +110,12 @@ func provide(c *dig.Container) error {
 	}
 
 	if err := c.Provide(func(deps spammerDeps) (*spammer.Spammer, error) {
-		CoreComponent.LogInfo("Setting up spammer ...")
+		Component.LogInfo("Setting up spammer ...")
 
 		mnemonic, err := loadMnemonicFromEnvironment("SPAMMER_MNEMONIC")
 		if err != nil {
 			if ParamsSpammer.ValueSpam.Enabled {
-				CoreComponent.LogErrorfAndExit("value spam enabled but loading mnemonic seed failed, err: %s", err)
+				Component.LogErrorfAndExit("value spam enabled but loading mnemonic seed failed, err: %s", err)
 			}
 		}
 
@@ -132,7 +128,7 @@ func provide(c *dig.Container) error {
 				return nil, err
 			}
 
-			ctxIndexer, cancelIndexer := context.WithTimeout(CoreComponent.Daemon().ContextStopped(), indexerPluginAvailableTimeout)
+			ctxIndexer, cancelIndexer := context.WithTimeout(Component.Daemon().ContextStopped(), indexerPluginAvailableTimeout)
 			defer cancelIndexer()
 
 			indexer, err = deps.NodeBridge.Indexer(ctxIndexer)
@@ -172,8 +168,8 @@ func provide(c *dig.Container) error {
 			fetchMetadata,
 			deps.SpammerMetrics,
 			deps.CPUUsageUpdater,
-			CoreComponent.Daemon(),
-			CoreComponent.Logger(),
+			Component.Daemon(),
+			Component.Logger(),
 		)
 	}); err != nil {
 		return err
@@ -189,7 +185,7 @@ func configure() error {
 func run() error {
 
 	// create a background worker that handles the ledger updates
-	if err := CoreComponent.Daemon().BackgroundWorker("Spammer[LedgerUpdates]", func(ctx context.Context) {
+	if err := Component.Daemon().BackgroundWorker("Spammer[LedgerUpdates]", func(ctx context.Context) {
 		if err := deps.NodeBridge.ListenToLedgerUpdates(ctx, 0, 0, func(update *nodebridge.LedgerUpdate) error {
 			createdOutputs := iotago.OutputIDs{}
 			for _, output := range update.Created {
@@ -210,52 +206,52 @@ func run() error {
 			deps.ShutdownHandler.SelfShutdown(fmt.Sprintf("Listening to LedgerUpdates failed, error: %s", err), true)
 		}
 	}, daemon.PriorityStopSpammerLedgerUpdates); err != nil {
-		CoreComponent.LogPanicf("failed to start worker: %s", err)
+		Component.LogPanicf("failed to start worker: %s", err)
 	}
 
 	// create a background worker that measures current CPU usage
-	if err := CoreComponent.Daemon().BackgroundWorker("CPU Usage Updater", func(ctx context.Context) {
+	if err := Component.Daemon().BackgroundWorker("CPU Usage Updater", func(ctx context.Context) {
 		deps.CPUUsageUpdater.Run(ctx)
 	}, daemon.PriorityStopCPUUsageUpdater); err != nil {
-		CoreComponent.LogPanicf("failed to start worker: %s", err)
+		Component.LogPanicf("failed to start worker: %s", err)
 	}
 
 	// create a background worker that listens to tips metrics
-	if err := CoreComponent.Daemon().BackgroundWorker("Tips Metrics Updater", func(ctx context.Context) {
+	if err := Component.Daemon().BackgroundWorker("Tips Metrics Updater", func(ctx context.Context) {
 		deps.TipPoolListener.Run(ctx)
 	}, daemon.PriorityStopTipsMetrics); err != nil {
-		CoreComponent.LogPanicf("failed to start worker: %s", err)
+		Component.LogPanicf("failed to start worker: %s", err)
 	}
 
 	// create a background worker that "measures" the spammer averages values every second
-	if err := CoreComponent.Daemon().BackgroundWorker("Spammer Metrics Updater", func(ctx context.Context) {
+	if err := Component.Daemon().BackgroundWorker("Spammer Metrics Updater", func(ctx context.Context) {
 		timeutil.NewTicker(deps.Spammer.MeasureSpammerMetrics, 1*time.Second, ctx).WaitForGracefulShutdown()
 	}, daemon.PriorityStopSpammer); err != nil {
-		CoreComponent.LogPanicf("failed to start worker: %s", err)
+		Component.LogPanicf("failed to start worker: %s", err)
 	}
 
 	// automatically start the spammer on startup if the flag is set
 	if ParamsSpammer.Autostart {
 		if err := deps.Spammer.Start(nil, nil, nil, nil); err != nil {
-			CoreComponent.LogPanicf("failed to autostart spammer: %s", err)
+			Component.LogPanicf("failed to autostart spammer: %s", err)
 		}
 	}
 
 	// create a background worker that handles the API
-	if err := CoreComponent.Daemon().BackgroundWorker("API", func(ctx context.Context) {
-		CoreComponent.LogInfo("Starting API ... done")
+	if err := Component.Daemon().BackgroundWorker("API", func(ctx context.Context) {
+		Component.LogInfo("Starting API ... done")
 
-		e := httpserver.NewEcho(CoreComponent.Logger(), nil, ParamsRestAPI.DebugRequestLoggerEnabled)
+		e := httpserver.NewEcho(Component.Logger(), nil, ParamsRestAPI.DebugRequestLoggerEnabled)
 
-		CoreComponent.LogInfo("Starting API server ...")
+		Component.LogInfo("Starting API server ...")
 
 		//nolint:contextcheck // false positive
-		_ = spammer.NewServer(deps.Spammer, e.Group(""))
+		_ = spammer.NewServer(deps.Spammer, e)
 
 		go func() {
-			CoreComponent.LogInfof("You can now access the API using: http://%s", ParamsRestAPI.BindAddress)
+			Component.LogInfof("You can now access the API using: http://%s", ParamsRestAPI.BindAddress)
 			if err := e.Start(ParamsRestAPI.BindAddress); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				CoreComponent.LogErrorfAndExit("Stopped REST-API server due to an error (%s)", err)
+				Component.LogErrorfAndExit("Stopped REST-API server due to an error (%s)", err)
 			}
 		}()
 
@@ -266,21 +262,23 @@ func run() error {
 			advertisedAddress = ParamsRestAPI.AdvertiseAddress
 		}
 
-		if err := deps.NodeBridge.RegisterAPIRoute(ctxRegister, APIRoute, advertisedAddress); err != nil {
-			CoreComponent.LogErrorfAndExit("Registering INX api route failed: %s", err)
+		routeName := strings.Replace(spammer.APIRoute, "/api/", "", 1)
+
+		if err := deps.NodeBridge.RegisterAPIRoute(ctxRegister, routeName, advertisedAddress, spammer.APIRoute); err != nil {
+			Component.LogErrorfAndExit("Registering INX api route failed: %s", err)
 		}
 		cancelRegister()
 
-		CoreComponent.LogInfo("Starting API server ... done")
+		Component.LogInfo("Starting API server ... done")
 		<-ctx.Done()
-		CoreComponent.LogInfo("Stopping API ...")
+		Component.LogInfo("Stopping API ...")
 
 		ctxUnregister, cancelUnregister := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancelUnregister()
 
 		//nolint:contextcheck // false positive
-		if err := deps.NodeBridge.UnregisterAPIRoute(ctxUnregister, APIRoute); err != nil {
-			CoreComponent.LogWarnf("Unregistering INX api route failed: %s", err)
+		if err := deps.NodeBridge.UnregisterAPIRoute(ctxUnregister, routeName); err != nil {
+			Component.LogWarnf("Unregistering INX api route failed: %s", err)
 		}
 
 		shutdownCtx, shutdownCtxCancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -288,12 +286,12 @@ func run() error {
 
 		//nolint:contextcheck // false positive
 		if err := e.Shutdown(shutdownCtx); err != nil {
-			CoreComponent.LogWarn(err)
+			Component.LogWarn(err)
 		}
 
-		CoreComponent.LogInfo("Stopping API ... done")
+		Component.LogInfo("Stopping API ... done")
 	}, daemon.PriorityStopSpammerAPI); err != nil {
-		CoreComponent.LogPanicf("failed to start worker: %s", err)
+		Component.LogPanicf("failed to start worker: %s", err)
 	}
 
 	return nil

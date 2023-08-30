@@ -13,13 +13,12 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/atomic"
 
-	"github.com/iotaledger/hive.go/core/contextutils"
-	hivedaemon "github.com/iotaledger/hive.go/core/daemon"
-	"github.com/iotaledger/hive.go/core/datastructure/timeheap"
-	"github.com/iotaledger/hive.go/core/events"
-	"github.com/iotaledger/hive.go/core/logger"
-	hivemath "github.com/iotaledger/hive.go/core/math"
-	"github.com/iotaledger/hive.go/core/syncutils"
+	hivedaemon "github.com/iotaledger/hive.go/app/daemon"
+	"github.com/iotaledger/hive.go/ds/timeheap"
+	"github.com/iotaledger/hive.go/logger"
+	"github.com/iotaledger/hive.go/runtime/contextutils"
+	"github.com/iotaledger/hive.go/runtime/event"
+	"github.com/iotaledger/hive.go/runtime/syncutils"
 	"github.com/iotaledger/hive.go/serializer/v2"
 	"github.com/iotaledger/inx-app/pkg/pow"
 	"github.com/iotaledger/inx-spammer/pkg/common"
@@ -287,8 +286,8 @@ func New(
 		indexer:                     indexer,
 		// Events are the events of the spammer
 		Events: &Events{
-			SpamPerformed:         events.NewEvent(SpamStatsCaller),
-			AvgSpamMetricsUpdated: events.NewEvent(AvgSpamMetricsCaller),
+			SpamPerformed:         event.New1[*SpamStats](),
+			AvgSpamMetricsUpdated: event.New1[*AvgSpamMetrics](),
 		},
 		spammerAvgHeap:              timeheap.NewTimeHeap(),
 		accountSender:               accountSender,
@@ -791,11 +790,7 @@ func (s *Spammer) Start(valueSpamEnabled *bool, bpsRateLimit *float64, cpuMaxUsa
 		return err
 	}
 
-	if err := s.startSpammerWorkers(valueSpamEnabledCfg, bpsRateLimitCfg, cpuMaxUsageCfg, workersCountCfg); err != nil {
-		return err
-	}
-
-	return nil
+	return s.startSpammerWorkers(valueSpamEnabledCfg, bpsRateLimitCfg, cpuMaxUsageCfg, workersCountCfg)
 }
 
 // Stop stops the spammer.
@@ -813,6 +808,17 @@ func (s *Spammer) Stop() error {
 	return nil
 }
 
+// uint32Diff returns the difference between newCount and oldCount
+// and catches overflows.
+func uint32Diff(newCount uint32, oldCount uint32) uint32 {
+	// Catch overflows
+	if newCount < oldCount {
+		return (math.MaxUint32 - oldCount) + newCount
+	}
+
+	return newCount - oldCount
+}
+
 // measureSpammerMetrics measures the spammer metrics.
 func (s *Spammer) MeasureSpammerMetrics() {
 	if s.spammerStartTime.IsZero() {
@@ -821,7 +827,7 @@ func (s *Spammer) MeasureSpammerMetrics() {
 	}
 
 	sentSpamBlocks := s.spammerMetrics.SentSpamBlocks.Load()
-	newBlocks := hivemath.Uint32Diff(sentSpamBlocks, s.lastSentSpamBlocks)
+	newBlocks := uint32Diff(sentSpamBlocks, s.lastSentSpamBlocks)
 	s.lastSentSpamBlocks = sentSpamBlocks
 
 	s.spammerAvgHeap.Add(uint64(newBlocks))

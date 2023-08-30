@@ -164,7 +164,7 @@ func (b *SpamBuilder) AddInput(input UTXOInterface, opts ...AddInputOption) bool
 
 // AddOutput adds the given output to the transaction.
 func (b *SpamBuilder) AddOutput(output iotago.Output, opts ...AddOutputOption) bool {
-	return b.AddOutputWithOwnership(output, make([]*UTXO, 0))
+	return b.AddOutputWithOwnership(output, make([]*UTXO, 0), opts...)
 }
 
 // AddOutput adds the given output to the transaction.
