@@ -790,11 +790,7 @@ func (s *Spammer) Start(valueSpamEnabled *bool, bpsRateLimit *float64, cpuMaxUsa
 		return err
 	}
 
-	if err := s.startSpammerWorkers(valueSpamEnabledCfg, bpsRateLimitCfg, cpuMaxUsageCfg, workersCountCfg); err != nil {
-		return err
-	}
-
-	return nil
+	return s.startSpammerWorkers(valueSpamEnabledCfg, bpsRateLimitCfg, cpuMaxUsageCfg, workersCountCfg)
 }
 
 // Stop stops the spammer.
