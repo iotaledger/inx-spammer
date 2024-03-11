@@ -6,6 +6,7 @@ on:
 
 jobs:
   docker:
+    environment: release
     name: Release Docker
     runs-on: ubuntu-latest
     steps:
